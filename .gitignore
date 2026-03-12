@@ -1,0 +1,15 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+
+# ASP.NET static web assets cache
+*.staticwebassets.runtime.json
+*.staticwebassets.endpoints.json
+
+# Accidental nested repo folder causing git add failure
+yusufaksu5341/
