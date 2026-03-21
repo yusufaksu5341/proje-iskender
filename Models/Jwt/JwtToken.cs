@@ -34,18 +34,18 @@ public class JwtToken
     [TestCase]
     public static bool TestDeserialize()
     {
-        throw new NotImplementedException();
+        return false;
     }
     
     [TestCase]
     public static bool TestSerialize()
     {
-        throw new NotImplementedException();
+        return false;
     }
 
     [TestCase]
     public static bool TestValidate()
     {
-        throw new NotImplementedException();
+        return false;
     }
 }
