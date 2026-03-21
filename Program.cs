@@ -1,3 +1,4 @@
+#if !_TEST
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,3 +25,12 @@ app.MapStaticAssets();
 app.MapControllers();
 
 app.Run();
+
+#else
+
+var tester = new ProjeIskender.Tester();
+
+tester.Init();
+tester.RunAll();
+
+#endif
