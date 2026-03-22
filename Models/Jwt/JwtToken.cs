@@ -47,14 +47,49 @@ public class JwtToken
         return tokenHandler.WriteToken(jwtToken);
     }
     
-    public static JwtToken Deserialize(string jwt)
+    public static JwtToken Deserialize(string jwt) // JWT stringini Token nesnesine dönüştürme
     {
-        throw new NotImplementedException();
+        if(string.IsNullOrEmpty(jwt))
+        {
+            throw new ArgumentNullException("JWT boş olamaz!");
+        }
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jsonWebToken = tokenHandler.ReadJwtToken(jwt);
+        var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
+
+        return new JwtToken
+        {
+            UserID = int.Parse(userIdClaim.Value),
+            Expiration = jsonWebToken.ValidTo
+        };
     }
 
-    public static bool Validate(string jwt)
+    public static bool Validate(string jwt) // JWT geçerliliğini kontrol etme
     {
-        throw new NotImplementedException();
+        if(string.IsNullOrEmpty(jwt) || string.IsNullOrEmpty(JwtToken.key))
+        {
+            return false;
+        }
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtToken.key)),
+            ValidateIssuerSigningKey = true
+        };
+
+        try
+        {
+            tokenHandler.ValidateToken(jwt, validationParameters, out SecurityToken validatedToken);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     [TestInit]
@@ -66,7 +101,16 @@ public class JwtToken
     [TestCase]
     public static bool TestDeserialize()
     {
-        return false;
+        var token = new JwtToken
+        {
+            UserID = 4,
+            Expiration = DateTime.UtcNow.AddHours(1)
+        };
+
+        var jwt = JwtToken.Serialize(token);
+        var deserializedToken = JwtToken.Deserialize(jwt);
+
+        return deserializedToken.UserID == token.UserID;
     }
     
     [TestCase]
@@ -79,12 +123,21 @@ public class JwtToken
         };
 
         var jwt = JwtToken.Serialize(token);
+        
         return !string.IsNullOrEmpty(jwt);
     }
 
     [TestCase]
     public static bool TestValidate()
     {
-        return false;
+        var token = new JwtToken
+        {
+            UserID = 4,
+            Expiration = DateTime.UtcNow.AddHours(1)
+        };
+
+        var jwt = JwtToken.Serialize(token);
+        
+        return JwtToken.Validate(jwt);
     }
 }
