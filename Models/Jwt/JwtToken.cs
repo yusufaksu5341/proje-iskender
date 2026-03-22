@@ -1,18 +1,50 @@
 ﻿namespace ProjeIskender.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.IdentityModel.Tokens;
 
 [TestableClass]
 public class JwtToken
 {
     private static string key; // Değişken tipi değiştirilebilir
 
-    public static void LoadKey(string key)
+    public int UserID { get; set; }
+    public DateTime Expiration { get; set; }
+
+    public static void LoadKey(string key) // Key kontrolü ve atanması
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(key) || key.Length < 32)
+        {
+            throw new ArgumentException("Key en az 256 bit (32 karakter) uzunluğunda olmalıdır!");
+        }
+        JwtToken.key = key;
     }
 
-    public static string Serialize(JwtToken token)
+    public static string Serialize(JwtToken token) // Token nesnesini JWT stringine dönüştürme
     {
-        throw new NotImplementedException();
+        if (token == null)
+        {
+            throw new ArgumentNullException(nameof(token));
+        }
+
+        if (string.IsNullOrEmpty(JwtToken.key))
+        {
+            throw new InvalidOperationException("Key yüklenmemiş! Lütfen önce LoadKey metodunu kullanarak bir key yükleyin.");
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim("UserID", token.UserID.ToString())
+        };
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtToken.key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var jwtToken = new JwtSecurityToken(claims: claims, expires: token.Expiration, signingCredentials: credentials);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        return tokenHandler.WriteToken(jwtToken);
     }
     
     public static JwtToken Deserialize(string jwt)
@@ -40,7 +72,14 @@ public class JwtToken
     [TestCase]
     public static bool TestSerialize()
     {
-        return false;
+        var token = new JwtToken
+        {
+            UserID = 4,
+            Expiration = DateTime.UtcNow.AddHours(1)
+        };
+
+        var jwt = JwtToken.Serialize(token);
+        return !string.IsNullOrEmpty(jwt);
     }
 
     [TestCase]
