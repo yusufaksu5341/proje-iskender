@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using ProjeIskender.Models;
 
 namespace ProjeIskender.Controllers.Api
@@ -19,12 +21,20 @@ namespace ProjeIskender.Controllers.Api
     [ApiController]
     public class CreateJwt : ControllerBase
     {
+        [Authorize]
         [HttpGet]
-        public IActionResult Index(int userID)
+        public IActionResult Index()
         {
+            var userIdClaim = User.FindFirst("UserID");
+
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+            {
+                return Unauthorized("UserID claim bulunamadı!");
+            }
+
             var token = new JwtToken
             {
-                UserID = userID,
+                UserID = parsedUserId,
                 Expiration = DateTime.UtcNow.AddHours(1)
             };
             var jwt = JwtToken.Serialize(token);
@@ -36,6 +46,7 @@ namespace ProjeIskender.Controllers.Api
     [ApiController]
     public class ValidateJwt : ControllerBase
     {
+        [Authorize]
         [HttpGet]
         public IActionResult Index(string jwt)
         {

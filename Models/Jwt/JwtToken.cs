@@ -58,9 +58,14 @@ public class JwtToken
         var jsonWebToken = tokenHandler.ReadJwtToken(jwt);
         var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
 
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+        {
+            throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
+        }
+
         return new JwtToken
         {
-            UserID = int.Parse(userIdClaim.Value),
+            UserID = parsedUserId,
             Expiration = jsonWebToken.ValidTo
         };
     }
