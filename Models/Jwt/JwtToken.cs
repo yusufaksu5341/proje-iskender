@@ -12,7 +12,7 @@ public class JwtToken
     public int UserID { get; set; }
     public DateTime Expiration { get; set; }
 
-    public static void LoadKey(string key) // Key kontrolü ve atanması
+    public static void LoadKey(string key)
     {
         if (string.IsNullOrEmpty(key) || key.Length < 32)
         {
@@ -21,7 +21,7 @@ public class JwtToken
         JwtToken.key = key;
     }
 
-    public static string Serialize(JwtToken token) // Token nesnesini JWT stringine dönüştürme
+    public static string Serialize(JwtToken token) 
     {
         if (token == null)
         {
@@ -47,7 +47,7 @@ public class JwtToken
         return tokenHandler.WriteToken(jwtToken);
     }
     
-    public static JwtToken Deserialize(string jwt) // JWT stringini Token nesnesine dönüştürme
+    public static JwtToken Deserialize(string jwt)
     {
         if(string.IsNullOrEmpty(jwt))
         {
@@ -65,7 +65,7 @@ public class JwtToken
         };
     }
 
-    public static bool Validate(string jwt) // JWT geçerliliğini kontrol etme
+    public static bool Validate(string jwt) 
     {
         if(string.IsNullOrEmpty(jwt) || string.IsNullOrEmpty(JwtToken.key))
         {
