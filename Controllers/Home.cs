@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ProjeIskender.Middlewares;
 using ProjeIskender.Models;
 
 namespace ProjeIskender.Controllers;
