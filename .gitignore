@@ -11,5 +11,8 @@ obj/
 *.staticwebassets.runtime.json
 *.staticwebassets.endpoints.json
 
+# Jetbrains
+.idea/
+
 # Accidental nested repo folder causing git add failure
 yusufaksu5341/
