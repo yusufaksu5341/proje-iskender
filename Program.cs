@@ -1,3 +1,5 @@
+using ProjeIskender.Middlewares;
+
 #if !_TEST
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseMiddleware<AuthenticationMiddleware>();
 app.UseAuthorization();
 
 app.MapStaticAssets();
