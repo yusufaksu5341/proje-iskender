@@ -4,7 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-      <DefineConstants>__TEST</DefineConstants>
+    <DefineConstants>_TEST</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 namespace ProjeIskender.Models.Jwt;
 
-class JwtGenerateRequest
+public class JwtGenerateRequest
 {
-    public string UserId { get; set; }
+    required public string UserId { get; set; }
 }

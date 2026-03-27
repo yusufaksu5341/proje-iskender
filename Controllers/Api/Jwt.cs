@@ -1,11 +1,12 @@
 using ProjeIskender.Models.Jwt;
+using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProjeIskender.Controllers.Api;
 
 [ApiController]
-[Route("jwt")]
+[Route("api/jwt")]
 public class Jwt : ControllerBase
 {
     ILogger<Jwt> logger;
@@ -36,7 +37,7 @@ public class Jwt : ControllerBase
             return Unauthorized("UserID claim bulunamadı!");
         }
 
-        var token = new JwtToken
+        var token = new JwtToken()
         {
             UserID = parsedUserId,
             Expiration = DateTime.UtcNow.AddHours(1)
