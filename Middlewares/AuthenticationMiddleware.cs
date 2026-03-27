@@ -1,6 +1,6 @@
 using System.Net;
 using System.Reflection;
-using ProjeIskender.Models;
+using ProjeIskender.Models.Jwt;
 
 namespace ProjeIskender.Middlewares;
 
@@ -15,21 +15,20 @@ public class AuthenticationMiddleware
     
     public async Task Invoke(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments(new PathString("/api")) == false ||
-            context.Request.Path == new PathString("/api/generate-token"))
+        if (context.Request.Path.StartsWithSegments(new PathString("/api")) == false && context.Request.Path == new PathString("/api/jwt/generate-token"))
         {
             await next(context);
             return;
         }
-        var author = context.Request.Headers.Authorization;
+        var auth = context.Request.Headers.Authorization;
         
-        if (author.Count != 1)
+        if (auth.Count != 1)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthized;
             return;
         }
 
-        var token = author[0]!;
+        var token = auth[0]!;
         if (!token.StartsWith("Bearer "))
         {
             context.Response.StatusCode = (int)HttpStatusCode.BadRequest;

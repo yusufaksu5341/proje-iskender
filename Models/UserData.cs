@@ -1,8 +1,8 @@
 namespace ProjeIskender.Models;
 
-class UserData
+public class UserData
 {
-    public string UserId { get; set; }
-    public string UserPassword { get; set; }
-    public string UserRole { get; set; }
+    required public string UserId { get; set; }
+    required public string UserPassword { get; set; }
+    required public string UserRole { get; set; }
 }

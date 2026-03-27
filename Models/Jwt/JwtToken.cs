@@ -1,8 +1,9 @@
-﻿namespace ProjeIskender.Models;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+
+namespace ProjeIskender.Models.Jwt;
 
 [TestableClass]
 public class JwtToken
