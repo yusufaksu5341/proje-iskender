@@ -1,4 +1,6 @@
 using ProjeIskender.Middlewares;
+using ProjeIskender.Services;
+using ProjeIskender.Services.Implementation;
 
 #if !_TEST
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
+builder.Services.AddScoped<IUserService, TestUserService>();
 
 var app = builder.Build();
 
