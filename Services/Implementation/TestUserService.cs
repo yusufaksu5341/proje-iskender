@@ -11,6 +11,11 @@ class TestUserService : IUserService
      */
     private Dictionary<string, UserData> testData = new Dictionary<string, UserData>();
 
+    public UserData? GetUserByEmail(string email) // Hata vermemesi için ekledim. Sonra düzenleriz. -H
+    {
+        return null;
+    }
+
     public UserData? GetUserById(string userId)
     {
         if (userId == null)
@@ -29,7 +34,7 @@ class TestUserService : IUserService
         var user = GetUserById(userId);
         if (user == null)
             return false;
-        return user.UserPassword == userPassword;
+        return user.Password == userPassword;
     }
 
     public bool AddUser(UserData user)
@@ -45,28 +50,28 @@ class TestUserService : IUserService
         testService = new TestUserService();
         testService.testData.Add("test-0", new UserData() 
         {
-            UserId = "test-0",
-            UserPassword = "test1234",
-            UserRole = "Guest"
+            Id = "test-0",
+            Password = "test1234",
+            Role = "Guest"
         });
         testService.testData.Add("test-1", new UserData() 
         {
-            UserId = "test-1",
-            UserPassword = "asdf1234",
-            UserRole = "Guest"
+            Id = "test-1",
+            Password = "asdf1234",
+            Role = "Guest"
         });
         testService.testData.Add("penguen", new UserData()
         {
-            UserId = "penguen",
-            UserPassword = "penguen-lover-49",
-            UserRole = "Admin"
+            Id = "penguen",
+            Password = "penguen-lover-49",
+            Role = "Admin"
         });
     }
 
     [TestCase]
     public static bool GetUserTestCorrect()
     {
-        return testService.GetUserById("penguen")!.UserId == "penguen";
+        return testService.GetUserById("penguen")!.Id == "penguen";
     }
 
     [TestCase]

@@ -2,7 +2,7 @@ namespace ProjeIskender.Models;
 
 public class UserData
 {
-    required public string UserId { get; set; }
-    required public string UserPassword { get; set; }
-    required public string UserRole { get; set; }
+    required public string Id { get; set; }
+    required public string Password { get; set; }
+    required public string Role { get; set; }
 }

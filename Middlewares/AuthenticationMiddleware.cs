@@ -24,7 +24,7 @@ public class AuthenticationMiddleware
         
         if (auth.Count != 1)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthized;
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return;
         }
 

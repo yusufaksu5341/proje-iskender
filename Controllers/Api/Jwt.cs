@@ -1,4 +1,5 @@
 using ProjeIskender.Models.Jwt;
+using ProjeIskender.Models;
 using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -20,28 +21,39 @@ public class Jwt : ControllerBase
 
     [HttpGet("generate-token")]
     public IActionResult Generate([FromBody] JwtGenerateRequest request) 
-    {
-        /*
-         * request değişkeninden gelen verileri veritabanından okuyup token oluşturması gerekiyor. Şimdilik
-         * veritabanı işlemlerini userService değişkeni ile yap.
-         *
-         * Bu fonksiyon Authorization gerektirmiyor. Zaten token'ı olmayan birisi bu endpoint'i kullanacağı için 
-         * token validation işlemi yapmayız.
-         *
-         * Bu yorumları fonksiyonu tekrar yazdıktan sonra sil.
-         */
-        var userIdClaim = User.FindFirst("UserID");
-
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+    {   
+        String UserId = request.UserId;
+        if(UserId != null)
         {
-            return Unauthorized("UserID claim bulunamadı!");
-        }
+            if(!userService.ValidateUser(UserId, request.Password))
+            {
+                return BadRequest("Kullanıcı adı veya şifre yanlış!");
+            }
 
+        }
+        else if(request.Email != null)
+        {   
+            UserData? user;
+            user = userService.GetUserByEmail(request.Email);
+
+            if(user == null || !userService.ValidateUser(user!.Id, request.Password))
+            {
+                return BadRequest("Kullanıcı adı veya şifre yanlış!");
+            }
+            UserId = user.Id;
+            
+        }
+        else
+        {
+            return BadRequest("Lütfen bilgileri eksiksiz giriniz!");
+        }
+        
         var token = new JwtToken()
         {
-            UserID = parsedUserId,
+            UserID = UserId,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
+
         var jwt = JwtToken.Serialize(token);
         return Ok(jwt);
     }

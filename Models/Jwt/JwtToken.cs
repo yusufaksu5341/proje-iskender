@@ -8,9 +8,9 @@ namespace ProjeIskender.Models.Jwt;
 [TestableClass]
 public class JwtToken
 {
-    private static string key; // Değişken tipi değiştirilebilir
+    private static string? key; // Değişken tipi değiştirilebilir
 
-    public int UserID { get; set; }
+    public required string UserID { get; set; }
     public DateTime Expiration { get; set; }
 
     public static void LoadKey(string key)
@@ -36,7 +36,7 @@ public class JwtToken
 
         var claims = new List<Claim>
         {
-            new Claim("UserID", token.UserID.ToString())
+            new Claim("UserID", token.UserID)
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtToken.key));
@@ -59,14 +59,14 @@ public class JwtToken
         var jsonWebToken = tokenHandler.ReadJwtToken(jwt);
         var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
 
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+        if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
         {
             throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
         }
 
         return new JwtToken
         {
-            UserID = parsedUserId,
+            UserID = userIdClaim.Value,
             Expiration = jsonWebToken.ValidTo
         };
     }
@@ -109,7 +109,7 @@ public class JwtToken
     {
         var token = new JwtToken
         {
-            UserID = 4,
+            UserID = "4",
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
@@ -124,7 +124,7 @@ public class JwtToken
     {
         var token = new JwtToken
         {
-            UserID = 4,
+            UserID = "HuTao",
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
@@ -138,7 +138,7 @@ public class JwtToken
     {
         var token = new JwtToken
         {
-            UserID = 4,
+            UserID = "OnePiece",
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
