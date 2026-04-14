@@ -1,6 +1,12 @@
 using System.Net;
-using System.Reflection;
-using ProjeIskender.Models.Jwt;
+using System.Collections.Generic;
+using System.Collections;
+using System.Collections.Immutable;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using ProjeIskender.Attributes;
+using ProjeIskender.Models.Account;
 
 namespace ProjeIskender.Middlewares;
 
@@ -15,7 +21,9 @@ public class AuthenticationMiddleware
     
     public async Task Invoke(HttpContext context)
     {
-        if (context.Request.Path.StartsWithSegments(new PathString("/api")) == false && context.Request.Path == new PathString("/api/jwt/generate-token"))
+        var endp = context.GetEndpoint();
+        ProjeIskender.Attributes.AuthenticationAttribute? attr;
+        if (endp == null || (attr = endp.Metadata.GetMetadata<ProjeIskender.Attributes.AuthenticationAttribute>()) == null)
         {
             await next(context);
             return;
@@ -24,7 +32,7 @@ public class AuthenticationMiddleware
         
         if (auth.Count != 1)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthized;
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             return;
         }
 
@@ -42,7 +50,7 @@ public class AuthenticationMiddleware
             return;
         }
         
-        context.Items.Add("Jwt-Token", token);
+        context.Items.Add("Jwt-Token", JwtToken.Deserialize(token));
         await next(context);
     }
 }

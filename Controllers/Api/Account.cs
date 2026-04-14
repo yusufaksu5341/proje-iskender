@@ -1,4 +1,4 @@
-using ProjeIskender.Models.Jwt;
+using ProjeIskender.Models.Account;
 using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,20 +6,20 @@ using Microsoft.AspNetCore.Mvc;
 namespace ProjeIskender.Controllers.Api;
 
 [ApiController]
-[Route("api/jwt")]
-public class Jwt : ControllerBase
+[Route("api/account")]
+public class Account : ControllerBase
 {
-    ILogger<Jwt> logger;
+    ILogger<Account> logger;
     IUserService userService;
     
-    public Jwt(ILogger<Jwt> logger, IUserService userService)
+    public Account(ILogger<Account> logger, IUserService userService)
     {
         this.logger = logger;
         this.userService = userService;
     }
 
-    [HttpGet("generate-token")]
-    public IActionResult Generate([FromBody] JwtGenerateRequest request) 
+    [HttpGet("login")]
+    public IActionResult Login([FromBody] LoginRequest request) 
     {
         /*
          * request değişkeninden gelen verileri veritabanından okuyup token oluşturması gerekiyor. Şimdilik
