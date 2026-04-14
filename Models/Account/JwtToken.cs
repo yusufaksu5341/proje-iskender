@@ -3,7 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ProjeIskender.Models.Jwt;
+namespace ProjeIskender.Models.Account;
 
 [TestableClass]
 public class JwtToken
@@ -11,6 +11,7 @@ public class JwtToken
     private static string key; // Değişken tipi değiştirilebilir
 
     public int UserID { get; set; }
+    public int UserRole { get; set; }
     public DateTime Expiration { get; set; }
 
     public static void LoadKey(string key)
@@ -36,7 +37,8 @@ public class JwtToken
 
         var claims = new List<Claim>
         {
-            new Claim("UserID", token.UserID.ToString())
+            new Claim("UserID", token.UserID.ToString()),
+            new Claim("UserRole", token.UserRole.ToString())
         };
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtToken.key));
@@ -58,15 +60,21 @@ public class JwtToken
         var tokenHandler = new JwtSecurityTokenHandler();
         var jsonWebToken = tokenHandler.ReadJwtToken(jwt);
         var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
+        var userRoleClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserRole");
 
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
         {
             throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
         }
+        if (userRoleClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserRole))
+        {
+            throw new SecurityTokenException("JWT UserRole claim bulunamadı veya geçersiz!");
+        }
 
         return new JwtToken
         {
             UserID = parsedUserId,
+            UserRole = parsedUserRole,
             Expiration = jsonWebToken.ValidTo
         };
     }
