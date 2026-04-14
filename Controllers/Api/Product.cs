@@ -4,7 +4,7 @@ namespace ProjeIskender.Controllers.Api;
 
 [Route("api/product")]
 [ApiController]
-public class Product
+public class Product : ControllerBase
 {
     
 }

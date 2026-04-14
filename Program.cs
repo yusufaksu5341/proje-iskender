@@ -11,6 +11,8 @@ builder.Services.AddControllers();
 
 // Custom services
 builder.Services.AddScoped<IUserService, TestUserService>();
+builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 
 var app = builder.Build();
 

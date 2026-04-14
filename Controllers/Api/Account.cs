@@ -45,4 +45,10 @@ public class Account : ControllerBase
         var jwt = JwtToken.Serialize(token);
         return Ok(jwt);
     }
+
+    [HttpGet("register")]
+    public IActionResult Register([FromBody] RegisterRequest request)
+    {
+        throw new NotImplementedException();
+    }
 }
