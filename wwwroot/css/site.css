@@ -832,7 +832,7 @@ footer.fire-footer {
    AUTH PAGES  (Login / Register)
    ========================================================= */
 .auth-page {
-    min-height: calc(100vh - 120px);
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -873,6 +873,17 @@ footer.fire-footer {
     box-shadow: 0 20px 60px #00000066, 0 0 0 1px #ff450011;
     z-index: 1;
 }
+.auth-alert {
+    background: #2d0000;
+    border: 1px solid var(--fire-red);
+    border-radius: 7px;
+    color: #ff8888;
+    font-size: .82rem;
+    padding: .6rem .9rem;
+    margin-bottom: .75rem;
+    text-align: center;
+}
+
 .auth-card::before {
     content: '';
     position: absolute;
