@@ -1,0 +1,239 @@
+@{
+    ViewData["Title"] = "İlan Ekle — İskender";
+}
+
+<div class="ilan-add-page">
+    <div class="container-fluid">
+
+        <div class="ilan-add-header">
+            <div class="ilan-breadcrumb">
+                <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                <span class="sep">›</span>
+                <span>İlan Ekle</span>
+            </div>
+            <div class="ilan-add-title">Yeni İlan Ekle</div>
+            <div class="ilan-add-sub">Ürününü binlerce alıcıya ulaştır.</div>
+        </div>
+
+        <form class="ilan-add-form" method="post" action="#" enctype="multipart/form-data">
+
+            <!-- Bölüm 1: Temel Bilgiler -->
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">📋</div>
+                    <div class="ilan-section-title">Temel Bilgiler</div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="fire-label" for="ilanBaslik">İlan Başlığı</label>
+                        <input class="fire-input" type="text" id="ilanBaslik" name="baslik"
+                               maxlength="100" required />
+                        <div class="fire-input-hint">En fazla 100 karakter</div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fire-label" for="kategori">Kategori</label>
+                        <select class="fire-select" id="kategori" name="kategori" required>
+                            <option value="">Seçiniz</option>
+                            <option>Oyun &amp; Konsol</option>
+                            <option>Telefon &amp; Tablet</option>
+                            <option>Bilgisayar</option>
+                            <option>Fotoğraf</option>
+                            <option>Müzik Aletleri</option>
+                            <option>Giyim</option>
+                            <option>Ev &amp; Yaşam</option>
+                            <option>Araç &amp; Aksesuar</option>
+                            <option>Saat &amp; Mücevher</option>
+                            <option>Kitap &amp; Koleksiyon</option>
+                            <option>Diğer</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fire-label" for="sehir">Şehir</label>
+                        <select class="fire-select" id="sehir" name="sehir" required>
+                            <option value="">Seçiniz</option>
+                            <option>İstanbul</option>
+                            <option>Ankara</option>
+                            <option>İzmir</option>
+                            <option>Bursa</option>
+                            <option>Antalya</option>
+                            <option>Adana</option>
+                            <option>Konya</option>
+                            <option>Diğer</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="fire-label">Ürün Durumu</label>
+                        <div class="condition-group">
+                            <label class="condition-pill active"><input type="radio" name="durum" value="sifir" hidden checked> Sıfır</label>
+                            <label class="condition-pill"><input type="radio" name="durum" value="az" hidden> Az Kullanılmış</label>
+                            <label class="condition-pill"><input type="radio" name="durum" value="iyi" hidden> İyi</label>
+                            <label class="condition-pill"><input type="radio" name="durum" value="orta" hidden> Orta</label>
+                            <label class="condition-pill"><input type="radio" name="durum" value="kotu" hidden> Yıpranmış</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bölüm 2: Görseller -->
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">🖼️</div>
+                    <div class="ilan-section-title">Görseller</div>
+                </div>
+                <div class="img-dropzone" id="dropzone">
+                    <span class="img-dropzone-icon">📷</span>
+                    <p>Görselleri buraya sürükle veya <strong style="color:var(--fire-orange)">seç</strong></p>
+                    <span>En fazla 8 görsel · JPG, PNG, WEBP · Max 5 MB</span>
+                    <input type="file" id="imgInput" name="gorseller" accept="image/*" multiple hidden />
+                </div>
+                <div class="img-preview-grid" id="imgPreviewGrid"></div>
+            </div>
+
+            <!-- Bölüm 3: Açıklama -->
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">📝</div>
+                    <div class="ilan-section-title">Açıklama</div>
+                </div>
+                <textarea class="fire-textarea" name="aciklama" id="aciklama"
+                          rows="6"
+                          style="min-height:140px"></textarea>
+                <div class="fire-input-hint">Ürününüzü detaylı anlatın: marka, model, kullanım süresi, varsa hasar vb.</div>
+            </div>
+
+            <!-- Bölüm 4: Fiyat & İlan Türü -->
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">🔥</div>
+                    <div class="ilan-section-title">Fiyat &amp; İlan Türü</div>
+                </div>
+
+                <div class="listing-type-group mb-4" id="listingTypeGroup">
+                    <div class="listing-type-card active" data-type="sabit">
+                        <span class="lt-icon">🏷️</span>
+                        <div class="lt-title">Sabit Fiyat</div>
+                        <div class="lt-desc">Belirlediğin fiyattan sat</div>
+                    </div>
+                    <div class="listing-type-card" data-type="artirma">
+                        <span class="lt-icon">🔨</span>
+                        <div class="lt-title">Açık Artırma</div>
+                        <div class="lt-desc">En yüksek teklifi kabul et</div>
+                    </div>
+                </div>
+
+                <div class="flame-bid-section">
+                    <div class="flame-bid-label" id="flameBidLabel">Satış Fiyatı</div>
+                    <div class="flame-bid-wrap"
+                         data-step="50"
+                         data-min="0"
+                         data-max="9999950"
+                         data-value="500">
+                        <button type="button" class="flame-btn flame-btn-minus" aria-label="Azalt">−</button>
+                        <div class="flame-bid-display">
+                            <div class="flame-particles"></div>
+                            <div class="flame-bid-amount">
+                                <span class="flame-bid-currency">₺</span>
+                                <span class="flame-bid-num">500</span>
+                            </div>
+                            <div class="flame-bid-step-hint">Basılı tut — hızlı artır/azalt</div>
+                        </div>
+                        <button type="button" class="flame-btn flame-btn-plus" aria-label="Artır">+</button>
+                    </div>
+                    <input type="hidden" name="fiyat" id="fiyatHidden" value="500" />
+                </div>
+
+                <div class="artirma-extra mt-3" id="artirmaExtra" style="display:none;">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="fire-label" for="artirmaSuresi">Artırma Süresi</label>
+                            <select class="fire-select" id="artirmaSuresi" name="artirmaSuresi">
+                                <option>1 Gün</option>
+                                <option>3 Gün</option>
+                                <option selected>7 Gün</option>
+                                <option>14 Gün</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fire-label" for="artirmaAdimi">Min. Artış Adımı (₺)</label>
+                            <input class="fire-input" type="number" id="artirmaAdimi" name="artirmaAdimi"
+                                   min="1" value="50" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="d-flex gap-3 justify-content-end">
+                <a asp-controller="Home" asp-action="Index" class="btn-fire-outline">Vazgeç</a>
+                <button type="submit" class="btn-fire px-5">İlanı Yayınla</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Condition pills
+    document.querySelectorAll('.condition-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.condition-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+        });
+    });
+
+    // Listing type toggle
+    const typeCards = document.querySelectorAll('.listing-type-card');
+    const artirmaExtra = document.getElementById('artirmaExtra');
+    const flameBidLabel = document.getElementById('flameBidLabel');
+    typeCards.forEach(card => {
+        card.addEventListener('click', () => {
+            typeCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            const isArtirma = card.dataset.type === 'artirma';
+            artirmaExtra.style.display = isArtirma ? '' : 'none';
+            flameBidLabel.textContent = isArtirma ? 'Başlangıç Fiyatı' : 'Satış Fiyatı';
+        });
+    });
+
+    // Image dropzone
+    const dropzone = document.getElementById('dropzone');
+    const imgInput = document.getElementById('imgInput');
+    const previewGrid = document.getElementById('imgPreviewGrid');
+
+    dropzone.addEventListener('click', () => imgInput.click());
+    dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        handleFiles(e.dataTransfer.files);
+    });
+    imgInput.addEventListener('change', () => handleFiles(imgInput.files));
+
+    function handleFiles(files) {
+        [...files].slice(0, 8).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const thumb = document.createElement('div');
+                thumb.className = 'img-preview-thumb';
+                thumb.innerHTML = `<img src="${e.target.result}" alt=""><button type="button" class="img-remove">✕</button>`;
+                thumb.querySelector('.img-remove').addEventListener('click', () => thumb.remove());
+                previewGrid.appendChild(thumb);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Sync hidden price input
+    const flameBidWrap = document.querySelector('.flame-bid-wrap');
+    const fiyatHidden = document.getElementById('fiyatHidden');
+    if (flameBidWrap && fiyatHidden) {
+        const observer = new MutationObserver(() => {
+            const numEl = flameBidWrap.querySelector('.flame-bid-num');
+            if (numEl) fiyatHidden.value = numEl.textContent.replace(/\./g, '');
+        });
+        observer.observe(flameBidWrap.querySelector('.flame-bid-num'), { childList: true, subtree: true, characterData: true });
+    }
+</script>
+}

@@ -1,0 +1,221 @@
+@{
+    ViewData["Title"] = "PS5 Console — İskender";
+}
+
+<div class="ilan-detail-page">
+    <div class="container-fluid">
+
+        <div class="ilan-breadcrumb">
+            <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+            <span class="sep">›</span>
+            <a href="#">Oyun &amp; Konsol</a>
+            <span class="sep">›</span>
+            <span>PS5 Console Disk Edition</span>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- SOL: Galeri -->
+            <div class="col-lg-7">
+                <div class="ilan-gallery">
+                    <div class="gallery-main" id="galleryMain">🎮</div>
+                    <div class="gallery-thumbs">
+                        <div class="gallery-thumb active">🎮</div>
+                        <div class="gallery-thumb">🕹️</div>
+                        <div class="gallery-thumb">📦</div>
+                        <div class="gallery-thumb">🔌</div>
+                        <div class="gallery-thumb">📸</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SAĞ: Bilgi Paneli -->
+            <div class="col-lg-5">
+                <div class="ilan-info-panel">
+
+                    <div class="ilan-badges">
+                        <span class="listing-badge badge-hot">🔥 Çok İlgi Görüyor</span>
+                        <span class="listing-badge badge-end">🔨 Açık Artırma</span>
+                    </div>
+
+                    <div class="ilan-title">PS5 Console Disk Edition — Kutu Açılmamış</div>
+
+                    <div class="ilan-meta-row">
+                        <span>📍 İstanbul</span>
+                        <span>📅 2 saat önce</span>
+                        <span>👁 347 görüntülenme</span>
+                        <span>❤️ 28 favori</span>
+                    </div>
+
+                    <!-- Geri Sayım -->
+                    <div class="ilan-countdown-section">
+                        <div class="ilan-countdown-label">Artırma Bitimine Kalan Süre</div>
+                        <div class="ilan-countdown-timers">
+                            <div class="ilan-countdown-block">
+                                <span class="ilan-countdown-num" id="cdHour">02</span>
+                                <div class="ilan-countdown-unit">Saat</div>
+                            </div>
+                            <div class="ilan-countdown-block">
+                                <span class="ilan-countdown-num" id="cdMin">47</span>
+                                <div class="ilan-countdown-unit">Dakika</div>
+                            </div>
+                            <div class="ilan-countdown-block">
+                                <span class="ilan-countdown-num" id="cdSec">33</span>
+                                <div class="ilan-countdown-unit">Saniye</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mevcut En Yüksek Teklif -->
+                    <div class="ilan-current-bid">
+                        <div class="ilan-current-bid-label">Mevcut En Yüksek Teklif</div>
+                        <div class="ilan-current-bid-amount">
+                            <span class="ilan-cbid-currency">₺</span>
+                            <span class="ilan-cbid-num" id="currentBidDisplay">18.250</span>
+                        </div>
+                        <div class="ilan-current-bid-meta">· 14 teklif verildi</div>
+                    </div>
+
+                    <!-- ALEV BİD WİDGETI -->
+                    <div class="flame-bid-section">
+                        <div class="flame-bid-label">Teklifinizi Belirleyin</div>
+                        <div class="flame-bid-wrap"
+                             data-step="50"
+                             data-min="18300"
+                             data-max="9999950"
+                             data-value="18300">
+                            <button type="button" class="flame-btn flame-btn-minus" aria-label="Azalt">−</button>
+                            <div class="flame-bid-display">
+                                <div class="flame-particles"></div>
+                                <div class="flame-bid-amount">
+                                    <span class="flame-bid-currency">₺</span>
+                                    <span class="flame-bid-num">18.300</span>
+                                </div>
+                                <div class="flame-bid-step-hint">Min. teklif: ₺18.300 · Her adım +₺50</div>
+                            </div>
+                            <button type="button" class="flame-btn flame-btn-plus" aria-label="Artır">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Aksiyon Butonları -->
+                    <div class="ilan-actions">
+                        <button type="button" class="btn-bid-submit">Teklif Ver</button>
+                        <button type="button" class="btn-wishlist-large" title="Favorilere Ekle">♡</button>
+                    </div>
+
+                    <!-- Satıcı Kartı -->
+                    <div class="ilan-seller-card">
+                        <div class="ilan-seller-avatar">👤</div>
+                        <div>
+                            <div class="ilan-seller-name">teknoloji_ustası</div>
+                            <div class="ilan-seller-rating">★★★★★ <span style="color:var(--text-muted)">4.9 (127 değerlendirme)</span></div>
+                            <div class="ilan-seller-meta">48 aktif ilan · Üye: 2021</div>
+                        </div>
+                        <button class="ilan-seller-btn">Profil →</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Alt Bölüm: Sekmeler -->
+        <div class="mt-5">
+            <div class="ilan-tabs">
+                <div class="ilan-tab active" data-tab="aciklama">Açıklama</div>
+                <div class="ilan-tab" data-tab="ozellikler">Özellikler</div>
+                <div class="ilan-tab" data-tab="teslimat">Teslimat</div>
+            </div>
+
+            <div class="ilan-tab-content active" id="tab-aciklama">
+                <p class="ilan-desc-text">
+PlayStation 5 Disk Edition — kutu açılmamış, orijinal ambalajında.
+
+Hediye olarak alındı, zaten PS5 sahibi olduğum için satışa çıkarıyorum. Fatura ve tüm aksesuarlar kutusunda mevcuttur.
+
+Kutu içeriği:
+• PS5 Konsol (Disk Sürümü)
+• DualSense Kablosuz Kumanda
+• HDMI Kablosu (4K)
+• USB Type-C Şarj Kablosu
+• AC Adaptör ve Elektrik Kablosu
+• Hızlı Başlangıç Kılavuzu
+
+Kargo ile gönderilebilir (alıcı öder). Elden teslim İstanbul'da yapılabilir.
+                </p>
+            </div>
+
+            <div class="ilan-tab-content" id="tab-ozellikler">
+                <table class="ilan-spec-table">
+                    <tr><td>Marka</td><td>Sony</td></tr>
+                    <tr><td>Model</td><td>PlayStation 5 Disk Edition</td></tr>
+                    <tr><td>Renk</td><td>Beyaz</td></tr>
+                    <tr><td>Depolama</td><td>825 GB SSD</td></tr>
+                    <tr><td>İşlemci</td><td>AMD Zen 2 (8 çekirdek)</td></tr>
+                    <tr><td>GPU</td><td>AMD RDNA 2 — 10.28 TFLOPS</td></tr>
+                    <tr><td>Durum</td><td>Sıfır — Kutusunda</td></tr>
+                    <tr><td>Garanti</td><td>Fatura ile 2 yıl Sony Türkiye</td></tr>
+                </table>
+            </div>
+
+            <div class="ilan-tab-content" id="tab-teslimat">
+                <table class="ilan-spec-table">
+                    <tr><td>Kargo</td><td>Aras / Yurtiçi (Alıcı Öder)</td></tr>
+                    <tr><td>Elden Teslim</td><td>Mümkün (İstanbul)</td></tr>
+                    <tr><td>Paketleme</td><td>Orijinal Kutu</td></tr>
+                    <tr><td>Tahmini Süre</td><td>1–3 İş Günü</td></tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Geri sayım
+    let totalSecs = 2 * 3600 + 47 * 60 + 33;
+    const cdHour = document.getElementById('cdHour');
+    const cdMin  = document.getElementById('cdMin');
+    const cdSec  = document.getElementById('cdSec');
+    setInterval(() => {
+        if (totalSecs <= 0) return;
+        totalSecs--;
+        cdHour.textContent = String(Math.floor(totalSecs / 3600)).padStart(2,'0');
+        cdMin.textContent  = String(Math.floor((totalSecs % 3600) / 60)).padStart(2,'0');
+        cdSec.textContent  = String(totalSecs % 60).padStart(2,'0');
+    }, 1000);
+
+    // Tab geçişi
+    document.querySelectorAll('.ilan-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.ilan-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.ilan-tab-content').forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab)?.classList.add('active');
+        });
+    });
+
+    // Galeri küçük resimler
+    document.querySelectorAll('.gallery-thumb').forEach((thumb, i) => {
+        thumb.addEventListener('click', () => {
+            document.querySelectorAll('.gallery-thumb').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+            document.getElementById('galleryMain').textContent = thumb.textContent;
+        });
+    });
+
+    // Teklif ver butonu
+    document.querySelector('.btn-bid-submit')?.addEventListener('click', () => {
+        const numEl = document.querySelector('.flame-bid-num');
+        if (!numEl) return;
+        const amount = numEl.textContent;
+        document.getElementById('currentBidDisplay').textContent = amount;
+        // Animasyon
+        const display = document.getElementById('currentBidDisplay');
+        display.style.transition = 'color .2s';
+        display.style.color = 'var(--fire-gold)';
+        display.style.textShadow = 'var(--glow-gold)';
+        setTimeout(() => { display.style.color = ''; display.style.textShadow = ''; }, 1200);
+    });
+</script>
+}

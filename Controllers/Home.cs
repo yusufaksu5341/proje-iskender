@@ -18,7 +18,7 @@ public class Home : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        return View();
+        return RedirectToAction("Login", "Account");
     }
 
     [HttpGet("privacy")]
