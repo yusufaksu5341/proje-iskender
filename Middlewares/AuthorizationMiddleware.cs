@@ -28,13 +28,7 @@ public class AuthorizationMiddleware
             return;
         }
 
-        var token = context.Items["Jwt-Token"] as JwtToken;
-
-        if (token == null)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-            return;
-        }
+        var token = (JwtToken)context.Items["Jwt-Token"]!;
 
         if (attr.Role != token.UserRole)
         {
