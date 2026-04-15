@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 // Custom services
 builder.Services.AddScoped<IUserService, TestUserService>(x => new TestUserService(Encoding.ASCII.GetBytes("test-key")));
 builder.Services.AddScoped<IResourceService, ResourceService>();
-builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductService, TestProductService>();
 
 var app = builder.Build();
 
