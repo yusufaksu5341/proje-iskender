@@ -16,4 +16,6 @@ public interface IUserService
     public string GenerateEmailVerification(string email);
 
     public bool VerifyEmail(string email, string mailCode);
+
+    public bool AddUser(UserData user);
 }

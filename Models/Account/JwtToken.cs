@@ -8,7 +8,7 @@ namespace ProjeIskender.Models.Account;
 [TestableClass]
 public class JwtToken
 {
-    private static string key; // Değişken tipi değiştirilebilir
+    private static string? key; // Değişken tipi değiştirilebilir
 
     public int UserID { get; set; }
     public int UserRole { get; set; }
@@ -62,11 +62,17 @@ public class JwtToken
         var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
         var userRoleClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserRole");
 
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+        if (userIdClaim == null || string.IsNullOrEmpty(userIdClaim.Value))
         {
             throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
         }
-        if (userRoleClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserRole))
+
+        if (!int.TryParse(userIdClaim.Value, out var parsedUserId))
+        {
+            throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
+        }
+
+        if (userRoleClaim == null || !int.TryParse(userRoleClaim.Value, out var parsedUserRole))
         {
             throw new SecurityTokenException("JWT UserRole claim bulunamadı veya geçersiz!");
         }
@@ -118,6 +124,7 @@ public class JwtToken
         var token = new JwtToken
         {
             UserID = 4,
+            UserRole = 0,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
@@ -132,7 +139,8 @@ public class JwtToken
     {
         var token = new JwtToken
         {
-            UserID = 4,
+            UserID = 7,
+            UserRole = 1,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
@@ -146,7 +154,8 @@ public class JwtToken
     {
         var token = new JwtToken
         {
-            UserID = 4,
+            UserID = 11,
+            UserRole = 0,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
