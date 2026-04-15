@@ -1,8 +1,10 @@
 # İçerik
 
 - [Endpoint'ler](#endpointler)
-    - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
-    - Product
+    - [Account](#account-endpointleri)
+      - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
+      - [/api/account/register](#post-apiaccountregister) | Hesap oluşturma
+    - [Product](#product-endpointleri)
         - [GET /api/product/{productId}](#get-apiproductproductid) | Ürün verisi çekme
         - [POST /api/product/create](#post-apiproductcreate) | Ürün oluşturma
         - [POST /api/product/{productId}/image](#post-apiproductproductidimage) | Ürün fotoğrafı ekleme
@@ -11,10 +13,13 @@
         - [GET /api/product/{productId}/follow](#get-apiproductproductidfollow) | Ürünün takip edilip edilmediğini kontrol etme
         - [POST /api/product/{productId}/follow](#post-apiproductproductidfollow) | Ürün takip etme
         - [POST /api/product/{productId}/bid](#post-apiproductproductidbid) | Ürüne fiyat koyma
+    - [Resource](#resource-endpointleri)
 - [Veri Tipleri](#veri-tipleri)
     - [Search-Respond](#search-respond) | [/api/search-prod](#get-apisearch-prod) dönüş değeri
 
 # Endpoint'ler
+
+# Account Endpoint'leri
 
 ## GET /api/account/login
 
@@ -109,7 +114,59 @@ Content-Length: ...
 Kullanıcı başarıyla oluşturuldu!
 ```
 
-## POST /api/account/{userId}/validate-email/{validationCode}
+## GET /api/account/{userId}
+
+Kullanıcı profilinin verilerini döndürür
+
+> NOT
+> 
+> Kullanıcının profil fotoğrafı da url olarak dönücek
+> 
+> userId gönderilmezse kullanıcının kendi profili açılacak
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+## POST /api/account/{userId}/verify-email
+
+Kullanıcının Email'ini doğrılamasını sağlar
+
+> NOT
+> 
+> Doğrulama kodu URL üzerinden alınacak
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Hayır |
+
+## GET /api/account/search
+
+> NOT
+>
+> Kullanıcı adı üzerinden arıyacak o yüzden çok da uğraşmana gerek yok.
+> 
+> Url üzerinden göndericek sorguyu
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+## PUT /api/account/{userId}/picture
+
+> UYARI
+>
+> Bu endpoint iptal edilmiştir!
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+# Product Endpoint'leri
 
 ## GET /api/product/{productId}
 
@@ -333,7 +390,7 @@ Kullanıcının ürünü satın almasını sağlar
 
 [Başarılı durumda 202-OK döndürür]
 
-## GET /api/user/search
+# Resource Endpoint'leri
 
 # Veri Tipleri
 
