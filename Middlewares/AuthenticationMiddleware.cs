@@ -50,7 +50,7 @@ public class AuthenticationMiddleware
             return;
         }
         
-        context.Items.Add("Jwt-Token", JwtToken.Deserialize(token));
+        context.Items.Add("Jwt-Token", JwtToken.Deserialize(subStr));
         await next(context);
     }
 }

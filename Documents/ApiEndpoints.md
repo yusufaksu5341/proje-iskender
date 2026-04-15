@@ -57,6 +57,51 @@ Ornek.Jwt.Tokeni
 
 ## POST /api/account/register
 
+Kullanıcının kayıt oluşturmasını sağlar
+
+| Özellik | Değer  |
+|---|--------|
+| Yetkilendirme | Hayır  |
+| Kimlik Doğrulama | Hayır  | 
+
+### Parametreler:
+`Accept: application/json`
+
+| isim           | Veri Tipi                        | Zorunlu | Açıklama                   |
+|----------------|----------------------------------|---------|----------------------------|
+| UserName       | char[128]                        | Evet    | Kullanıcı ismi             |
+| UserMail       | char[256]                        | Evet    | Kullanıcı Maili            |
+| UserPassword   | char[256]                        | Evet    | Kullanıcının Şifresi       |
+| ConfirmPassword| char[256]                        | Evet    | Şifre Tekrarı              |
+### Dönüş Değeri:
+`text/plain`
+
+### Örnek:
+
+Request:
+```http request
+POST /api/account/register
+...
+Content-Type: application/json
+Content-Length: ...
+
+{
+  "UserName": "Hu Tao",
+  "UserPassword": "HuTaoLover",
+  "ConfirmPassword": "HuTaoLover",
+  "UserMail": "hutao@pablo.com"
+}
+```
+
+Respond:
+```
+HTTP/1.1 200 OK
+Content-Type: text/plain;
+Content-Length: ...
+
+Kullanıcı başarıyla oluşturuldu!
+```
+
 ## POST /api/account/{userId}/validate-email/{validationCode}
 
 ## GET /api/product/search

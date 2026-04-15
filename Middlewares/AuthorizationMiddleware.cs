@@ -30,6 +30,12 @@ public class AuthorizationMiddleware
 
         var token = context.Items["Jwt-Token"] as JwtToken;
 
+        if (token == null)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            return;
+        }
+
         if (attr.Role != token.UserRole)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;

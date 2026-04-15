@@ -1,4 +1,5 @@
 using ProjeIskender.Models.Account;
+using ProjeIskender.Models.Dto;
 using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,36 +20,76 @@ public class Account : ControllerBase
     }
 
     [HttpGet("login")]
-    public IActionResult Login([FromBody] LoginRequest request) 
+    public IActionResult Login([FromBody] LoginRequest request)
     {
-        /*
-         * request değişkeninden gelen verileri veritabanından okuyup token oluşturması gerekiyor. Şimdilik
-         * veritabanı işlemlerini userService değişkeni ile yap.
-         *
-         * Bu fonksiyon Authorization gerektirmiyor. Zaten token'ı olmayan birisi bu endpoint'i kullanacağı için 
-         * token validation işlemi yapmayız.
-         *
-         * Bu yorumları fonksiyonu tekrar yazdıktan sonra sil.
-         */
-        var userIdClaim = User.FindFirst("UserID");
+        UserData? user = null;
 
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+        if (request.NameType == 0)
         {
-            return Unauthorized("UserID claim bulunamadı!");
+            if(!userService.ValidateUserByEmail(request.Name, request.Password))
+            {
+                return Unauthorized("Geçersiz email veya şifre!");
+            }
+            user = userService.GetUserByEmail(request.Name);
         }
+        else if (request.NameType == 1)
+        {
+            if(!userService.ValidateUser(request.Name, request.Password))
+            {
+                return Unauthorized("Geçersiz kullanıcı adı veya şifre!");
+            }
+            user = userService.GetUserByName(request.Name);
+        }
+        else
+        {
+            return BadRequest("Geçersiz NameType değeri!");
+        }
+        
+        var role = string.Equals(user!.UserRole, "Admin", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
 
         var token = new JwtToken()
         {
-            UserID = parsedUserId,
+            UserID = (int)user.UserId,
+            UserRole = role,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
+
         var jwt = JwtToken.Serialize(token);
         return Ok(jwt);
     }
 
-    [HttpGet("register")]
+    [HttpPost("register")]
     public IActionResult Register([FromBody] RegisterRequest request)
     {
-        throw new NotImplementedException();
+        if (userService.GetUserByEmail(request.UserMail) != null)
+        {
+            return BadRequest("Bu email zaten kayıtlı!");
+        }
+
+        if (userService.GetUserByName(request.UserName) != null)
+        {
+            return BadRequest("Bu kullanıcı adı zaten kayıtlı!");
+        }
+
+        if (request.UserPassword != request.ConfirmPassword)
+        {
+            return BadRequest("Şifreler eşleşmiyor!");
+        }
+
+        var AddUser = userService.AddUser(new UserData()
+        {
+            UserId = ((ulong)request.UserName.GetHashCode()), // Geçici olarak userName hashleyip ID oluşturdum. Sonradan değiştirilebilir. -H
+            UserMail = request.UserMail,
+            UserName = request.UserName,
+            UserPassword = request.UserPassword,
+            UserRole = "Guest"
+        });
+
+        if(!AddUser)
+        {
+            return BadRequest("Kullanıcı oluşturulurken bir hata oluştu!");
+        }
+
+        return Ok("Kullanıcı başarıyla oluşturuldu!");
     }
 }

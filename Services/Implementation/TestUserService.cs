@@ -7,7 +7,7 @@ using System.Text;
 namespace ProjeIskender.Services.Implementation;
 
 [TestableClass]
-class TestUserService : IUserService
+public class TestUserService : IUserService
 {
     /*
      * TODO: Veritabanı bağlantısı eklendiği zaman bu işlemleri gerçek veritabanı ile eşleştir
@@ -17,7 +17,7 @@ class TestUserService : IUserService
 
     public UserData? GetUserById(ulong userId)
     {
-        if (testData.TryGetValue(userId, out UserData user)) 
+        if (testData.TryGetValue(userId, out var user)) 
         {
             return user;
         }
@@ -31,12 +31,7 @@ class TestUserService : IUserService
             throw new NullReferenceException("userName is null");
         }
 
-        UserData? user;
-        if ((user = testData.First(x => x.Value.UserName == userName).Value) != null) 
-        {
-            return user;
-        }
-        return null;
+        return testData.FirstOrDefault(x => x.Value.UserName == userName).Value;
     }
 
     public IEnumerable<UserData> SearchUsers(string userName)
@@ -56,12 +51,7 @@ class TestUserService : IUserService
             throw new NullReferenceException("userEmail is null");
         }
 
-        UserData? user;
-        if ((user = testData.First(x => x.Value.UserMail == userEmail).Value) != null) 
-        {
-            return user;
-        }
-        return null;
+        return testData.FirstOrDefault(x => x.Value.UserMail == userEmail).Value;
     }
 
     public bool ValidateUser(ulong userId, string userPassword)
@@ -105,7 +95,12 @@ class TestUserService : IUserService
 
     public bool AddUser(UserData user)
     {
-        throw new NotImplementedException();
+        // Postman api testinde sorun yaratmasın diye ekledim. -H
+        if (user == null)
+        {
+            return false;
+        } 
+        return true;
     }
 
     private static TestUserService testService;
