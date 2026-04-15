@@ -72,7 +72,7 @@ public class Account : ControllerBase
             return BadRequest("Bu kullanıcı adı zaten kayıtlı!");
         }
 
-        var addUser = userService.AddUser(new UserData()
+        var AddUser = userService.AddUser(new UserData()
         {
             UserMail = request.UserMail,
             UserName = request.UserName,
@@ -80,7 +80,7 @@ public class Account : ControllerBase
             UserRole = UserRoles.MEMBER
         });
 
-        if(!addUser)
+        if(!AddUser)
         {
             return BadRequest("Kullanıcı oluşturulurken bir hata oluştu!");
         }
@@ -120,22 +120,17 @@ public class Account : ControllerBase
         });
     }
 
-    [HttpPost("{userId}/verify-email/{mailCode}")]
-    public IActionResult VerifyEmail(ulong UserId, string mailCode)
+    [HttpPost("{userId}/verify-email")]
+    public IActionResult VerifyEmail(ulong UserId)
     {
         var user = userService.GetUserById(UserId);
         if (user == null)
         {
             return NotFound("Kullanıcı bulunamadı!");
         }
-        
-        var verificationResult = userService.VerifyEmail(user.UserMail, mailCode);
-        
-        if (!verificationResult)
-        {
-            return BadRequest("Email doğrulama başarısız!");
-        }
-        return Ok("Email doğrulama başarılı!");
+
+        var mailCode = userService.GenerateEmailVerification(user.UserMail);
+        return Ok(mailCode);
     }
 
     [Authentication]
@@ -148,9 +143,8 @@ public class Account : ControllerBase
 
     [Authentication]
     [HttpPut("{userId}/picture")]
-    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl)
+    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl) 
     {
-        return NotFound();
         if(userId != (ulong)HttpContext.Items["UserID"]!)
         {
             return Forbid("Kendi profil resminizi güncelleyebilirsiniz!");
