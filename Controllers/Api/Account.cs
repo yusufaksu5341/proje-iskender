@@ -4,6 +4,8 @@ using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProjeIskender.Models;
+using Microsoft.AspNetCore.Authorization;
+using ProjeIskender.Attributes;
 
 namespace ProjeIskender.Controllers.Api;
 
@@ -48,7 +50,7 @@ public class Account : ControllerBase
 
         var token = new JwtToken()
         {
-            UserID = (int)user.UserId,
+            UserID = user.UserId,
             UserRole = (byte)user.UserRole,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
@@ -85,4 +87,77 @@ public class Account : ControllerBase
 
         return Ok("Kullanıcı başarıyla oluşturuldu!");
     }
+
+    [Authentication]
+    [HttpGet("{userId?}")]
+    public IActionResult GetUser(ulong? userId)
+    {
+        ulong resolvedUserId;
+
+        if (userId == null)
+        {
+            resolvedUserId = (ulong)HttpContext.Items["UserID"]!;
+        }
+        else
+        {
+            resolvedUserId = userId.Value;
+        }
+
+        UserData? requestedUser = userService.GetUserById(resolvedUserId);
+        if (requestedUser == null)
+        {
+            return NotFound("Kullanıcı bulunamadı!");
+        }
+
+        return Ok(new UserData()
+        {
+            UserId = requestedUser.UserId,
+            UserName = requestedUser.UserName,
+            UserMail = requestedUser.UserMail,
+            UserRole = requestedUser.UserRole,
+            UserPassword = null!,
+            pictureUrl = requestedUser.pictureUrl
+        });
+    }
+
+    [HttpPost("{userId}/verify-email")]
+    public IActionResult VerifyEmail(ulong UserId)
+    {
+        var user = userService.GetUserById(UserId);
+        if (user == null)
+        {
+            return NotFound("Kullanıcı bulunamadı!");
+        }
+
+        var mailCode = userService.GenerateEmailVerification(user.UserMail);
+        return Ok(mailCode);
+    }
+
+    [Authentication]
+    [HttpGet("search")]
+    public IActionResult SearchUsers([FromQuery] string userName)
+    {
+        var users = userService.SearchUsers(userName);
+        return Ok(users);
+    }
+
+    [Authentication]
+    [HttpPut("{userId}/picture")]
+    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl) 
+    {
+        if(userId != (ulong)HttpContext.Items["UserID"]!)
+        {
+            return Forbid("Kendi profil resminizi güncelleyebilirsiniz!");
+        }
+
+        var profileUpdated = userService.UpdateUserPicture(userId, pictureUrl);
+        
+        if (!profileUpdated)
+        {
+            return BadRequest("Profil resmi güncellenirken bir hata oluştu!");
+        }
+        return Ok("Profil resmi başarıyla güncellendi!");
+    }
+
 }
+

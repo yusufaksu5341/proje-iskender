@@ -7,4 +7,6 @@ public class UserData
     required public string UserMail { get; set; }
     required public string UserPassword { get; set; }
     required public UserRoles UserRole { get; set; }
+    
+    public string? pictureUrl { get; set; }
 }

@@ -111,13 +111,23 @@ public class TestUserService : IUserService
             testData.Add(id, user);
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         { }
 
         return false;
     }
 
-    private static TestUserService testService;
+    public bool UpdateUserPicture(ulong userId, string pictureUrl)
+    {
+        if (testData.TryGetValue(userId, out var user))
+        {
+            user.pictureUrl = pictureUrl;
+            return true;
+        }
+        return false;
+    }
+
+    private static TestUserService testService = null!;
 
     [TestInit]
     public static void TestInit()
