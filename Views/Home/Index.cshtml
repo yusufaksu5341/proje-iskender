@@ -1,35 +1,27 @@
+@model List<ProjeIskender.Models.IlanModel>
 @{
     ViewData["Title"] = "İskender";
 }
 
 <section class="hero-section">
     <div class="ember-field">
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
-        <div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
+        <div class="ember"></div><div class="ember"></div><div class="ember"></div>
         <div class="ember"></div>
     </div>
 
     <div class="container-fluid">
         <div class="row align-items-center">
             <div class="col-12 col-lg-6 hero-content">
-                <h1 class="hero-title">
-                    İskender'de<br />
-                    Fırsatını Yakala
-                </h1>
+                <h1 class="hero-title">İskender'de<br />Fırsatını Yakala</h1>
                 <p class="hero-sub">
                     <strong>İskender</strong> ile 2. el alım-satımda
                     açık artırmaya katıl, kaçırılmaz fırsatları ele geçir.
                 </p>
                 <div class="hero-stats">
                     <div class="hero-stat">
-                        <span class="hero-stat-num">48K+</span>
+                        <span class="hero-stat-num">@Model.Count</span>
                         <span class="hero-stat-lbl">Aktif İlan</span>
                     </div>
                     <div class="hero-stat">
@@ -37,38 +29,113 @@
                         <span class="hero-stat-lbl">Satıcı</span>
                     </div>
                     <div class="hero-stat">
-                        <span class="hero-stat-num">320</span>
+                        <span class="hero-stat-num">@Model.Count(i => i.Durum == "Artırma")</span>
                         <span class="hero-stat-lbl">Açık Artırma</span>
                     </div>
                 </div>
                 <div class="hero-actions">
-                    <a href="#" class="btn-fire">İlanlara Gözat</a>
-                    <a href="#" class="btn-fire-outline">İlan Ver</a>
+                    <a href="#ilanlar" class="btn-fire">İlanlara Gözat</a>
+                    <a asp-controller="Listing" asp-action="Add" class="btn-fire-outline">İlan Ver</a>
                 </div>
             </div>
             <div class="col-12 col-lg-6 d-none d-lg-block">
                 <div class="hero-card-showcase">
-                    <div class="showcase-card card-left">
-                        <div class="sc-img"></div>
-                        <div class="sc-title">Fender Stratocaster</div>
-                        <div class="sc-price">₺28.500</div>
-                        <div class="sc-bid">7 teklif</div>
-                    </div>
-                    <div class="showcase-card card-main">
-                        <span class="sc-badge">Çok Teklif</span>
-                        <div class="sc-img"></div>
-                        <div class="sc-title">PlayStation 5 Pro — 2. El</div>
-                        <div class="sc-price">₺18.500</div>
-                        <div class="sc-bid">14 teklif · 2s 34d kaldi</div>
-                    </div>
-                    <div class="showcase-card card-right">
-                        <div class="sc-img"></div>
-                        <div class="sc-title">Leica M11 Body</div>
-                        <div class="sc-price">₺95.000</div>
-                        <div class="sc-bid">3 teklif</div>
-                    </div>
+                    @if (Model.Count > 1)
+                    {
+                        <div class="showcase-card card-left">
+                            <div class="sc-img"></div>
+                            <div class="sc-title">@Model[1].Baslik</div>
+                            <div class="sc-price">₺@Model[1].MevcutTeklif.ToString("N0")</div>
+                            <div class="sc-bid">@Model[1].TeklifSayisi teklif</div>
+                        </div>
+                    }
+                    @if (Model.Count > 0)
+                    {
+                        <div class="showcase-card card-main">
+                            <span class="sc-badge">Çok Teklif</span>
+                            <div class="sc-img"></div>
+                            <div class="sc-title">@Model[0].Baslik</div>
+                            <div class="sc-price">₺@Model[0].MevcutTeklif.ToString("N0")</div>
+                            <div class="sc-bid">@Model[0].TeklifSayisi teklif</div>
+                        </div>
+                    }
+                    @if (Model.Count > 2)
+                    {
+                        <div class="showcase-card card-right">
+                            <div class="sc-img"></div>
+                            <div class="sc-title">@Model[2].Baslik</div>
+                            <div class="sc-price">₺@Model[2].MevcutTeklif.ToString("N0")</div>
+                            <div class="sc-bid">@Model[2].TeklifSayisi teklif</div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
+    </div>
+</section>
+
+<section class="fire-section" id="ilanlar">
+    <div class="container-fluid">
+        <div class="section-title">
+            Aktif İlanlar
+            <div class="title-line"></div>
+            <span class="title-badge">@Model.Count İlan</span>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-text">Henüz ilan yok.</div>
+                <a asp-controller="Listing" asp-action="Add" class="btn-fire mt-3">İlk İlanı Ver</a>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var ilan in Model)
+                {
+                    <div class="col-12 col-sm-6 col-xl-4">
+                        <a href="/ilan/@ilan.Id" style="text-decoration:none; display:block;">
+                            <div class="listing-card">
+                                <div class="card-img-wrap">
+                                    <span class="listing-badge badge-@ilan.Badge">
+                                        @(ilan.Badge == "hot" ? "Popüler" :
+                                          ilan.Badge == "new" ? "Yeni"    : "Bitiyor")
+                                    </span>
+                                    <button class="wishlist-btn" onclick="event.preventDefault()">♡</button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="listing-title">@ilan.Baslik</div>
+                                    <div class="listing-location">
+                                        <span>@ilan.Sehir</span>
+                                        <span>@ilan.Kategori</span>
+                                    </div>
+                                    <div class="bid-section">
+                                        <div>
+                                            <div class="bid-label">@(ilan.Durum == "Artırma" ? "En Yüksek Teklif" : "Sabit Fiyat")</div>
+                                            <div class="bid-amount">₺@ilan.MevcutTeklif.ToString("N0")</div>
+                                        </div>
+                                        <div class="bid-count">@ilan.TeklifSayisi teklif</div>
+                                    </div>
+                                    @if (ilan.Durum == "Artırma")
+                                    {
+                                        <div class="countdown-bar">
+                                            <div class="countdown-fill" style="width:@(Math.Max(5, Math.Min(100, ilan.KalanSaniye * 100 / 86400)))%"></div>
+                                        </div>
+                                        <div class="countdown-text">
+                                            <span>Kalan süre</span>
+                                            <span class="countdown-timer" data-ends="@ilan.KalanSaniye">--</span>
+                                        </div>
+                                    }
+                                    <button class="btn-bid mt-2">
+                                        @(ilan.Durum == "Artırma" ? "Teklif Ver" : "Satın Al")
+                                    </button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
     </div>
 </section>

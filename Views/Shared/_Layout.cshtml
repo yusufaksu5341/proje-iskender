@@ -41,8 +41,23 @@
             <div class="flex-grow-1"></div>
 
             <div class="d-flex align-items-center gap-2">
-                <a asp-controller="Account" asp-action="Login" class="btn-nav-login d-none d-sm-inline-block">Giriş</a>
-                <a asp-controller="Account" asp-action="Register" class="btn-nav-register d-none d-sm-inline-block">Kayıt Ol</a>
+                @{
+                    var sessionUser = Context.Session.GetString("Username");
+                }
+                @if (!string.IsNullOrEmpty(sessionUser))
+                {
+                    <a asp-controller="Listing" asp-action="Add" class="btn-nav-register d-none d-sm-inline-block">+ İlan Ver</a>
+                    <div class="nav-user-pill d-none d-sm-flex">
+                        <span class="nav-user-at">@@</span>
+                        <span class="nav-user-name">@sessionUser</span>
+                        <a asp-controller="Account" asp-action="Logout" class="nav-user-logout" title="Çıkış Yap">⏻</a>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-nav-login d-none d-sm-inline-block">Giriş</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn-nav-register d-none d-sm-inline-block">Kayıt Ol</a>
+                }
                 <button class="hamburger d-lg-none" id="menuToggle" aria-label="Menü">
                     <span></span>
                     <span></span>

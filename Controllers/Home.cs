@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using ProjeIskender.Models;
+using System.Linq;
 
 namespace ProjeIskender.Controllers;
 
@@ -18,7 +19,10 @@ public class Home : Controller
     [HttpGet]
     public IActionResult Index()
     {
-        return RedirectToAction("Login", "Account");
+        if (string.IsNullOrEmpty(HttpContext.Session.GetString("Username")))
+            return RedirectToAction("Login", "Account");
+
+        return View(IlanStore.Ilanlar.ToList());
     }
 
     [HttpGet("privacy")]

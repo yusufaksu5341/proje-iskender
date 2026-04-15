@@ -138,6 +138,38 @@ body {
 .fire-navbar .navbar-nav .nav-link:hover::after { left: .8rem; right: .8rem; }
 
 
+.nav-user-pill {
+    align-items: center;
+    gap: .3rem;
+    background: #150800;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: .3rem .75rem .3rem .6rem;
+    font-size: .82rem;
+    font-family: 'Exo 2', sans-serif;
+    transition: border-color .2s;
+}
+.nav-user-pill:hover { border-color: var(--fire-orange); }
+.nav-user-at { color: var(--fire-orange); font-weight: 700; }
+.nav-user-name { color: var(--text-primary); font-weight: 600; }
+.nav-user-logout {
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: .9rem;
+    margin-left: .2rem;
+    transition: color .2s;
+    line-height: 1;
+}
+.nav-user-logout:hover { color: var(--fire-red); }
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--text-muted);
+}
+.empty-icon { font-size: 3rem; margin-bottom: .75rem; }
+.empty-text { font-size: 1rem; }
+
 .btn-nav-login {
     background: transparent;
     border: 1px solid var(--fire-orange);
