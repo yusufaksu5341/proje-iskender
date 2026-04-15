@@ -28,7 +28,7 @@ public class Account : ControllerBase
         {
             if(!userService.ValidateUserByEmail(request.Name, request.Password))
             {
-                return Unauthorized("Geçersiz email veya şifre!");
+                return BadRequest("Geçersiz email veya şifre!");
             }
             user = userService.GetUserByEmail(request.Name);
         }
@@ -36,7 +36,7 @@ public class Account : ControllerBase
         {
             if(!userService.ValidateUser(request.Name, request.Password))
             {
-                return Unauthorized("Geçersiz kullanıcı adı veya şifre!");
+                return BadRequest("Geçersiz kullanıcı adı veya şifre!");
             }
             user = userService.GetUserByName(request.Name);
         }
@@ -49,7 +49,7 @@ public class Account : ControllerBase
 
         var token = new JwtToken()
         {
-            UserID = (int)user.UserId,
+            UserID = (int)user.UserId!,
             UserRole = role,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
@@ -71,14 +71,8 @@ public class Account : ControllerBase
             return BadRequest("Bu kullanıcı adı zaten kayıtlı!");
         }
 
-        if (request.UserPassword != request.ConfirmPassword)
-        {
-            return BadRequest("Şifreler eşleşmiyor!");
-        }
-
         var AddUser = userService.AddUser(new UserData()
         {
-            UserId = ((ulong)request.UserName.GetHashCode()), // Geçici olarak userName hashleyip ID oluşturdum. Sonradan değiştirilebilir. -H
             UserMail = request.UserMail,
             UserName = request.UserName,
             UserPassword = request.UserPassword,
