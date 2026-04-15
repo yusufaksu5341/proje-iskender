@@ -8,7 +8,7 @@ namespace ProjeIskender.Models.Account;
 [TestableClass]
 public class JwtToken
 {
-    private static string key; // Değişken tipi değiştirilebilir
+    private static string? key; // Değişken tipi değiştirilebilir
 
     public ulong UserID { get; set; }
     public int UserRole { get; set; }
@@ -66,6 +66,7 @@ public class JwtToken
         {
             throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
         }
+      
 
         if (userRoleClaim == null || !int.TryParse(userRoleClaim.Value, out var parsedUserRole))
         {

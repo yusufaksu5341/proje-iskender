@@ -124,7 +124,7 @@ public class TestUserService : IUserService
 
             return false;
         }
-        catch (Exception e)
+        catch (Exception)
         { }
         
         ulong id = lastId++;
@@ -134,7 +134,17 @@ public class TestUserService : IUserService
         return true;
     }
 
-    private static TestUserService testService;
+    public bool UpdateUserPicture(ulong userId, string pictureUrl)
+    {
+        if (testData.TryGetValue(userId, out var user))
+        {
+            user.pictureUrl = pictureUrl;
+            return true;
+        }
+        return false;
+    }
+
+    private static TestUserService testService = null!;
 
     [TestInit]
     public static void TestInit()
