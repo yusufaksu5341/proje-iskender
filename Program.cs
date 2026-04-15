@@ -1,3 +1,4 @@
+using System.Text;
 using ProjeIskender.Middlewares;
 using ProjeIskender.Services;
 using ProjeIskender.Services.Implementation;
@@ -10,7 +11,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 
 // Custom services
-builder.Services.AddScoped<IUserService, TestUserService>();
+builder.Services.AddScoped<IUserService, TestUserService>(x => new TestUserService(Encoding.ASCII.GetBytes("test-key")));
 builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
