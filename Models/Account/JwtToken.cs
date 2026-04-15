@@ -8,9 +8,9 @@ namespace ProjeIskender.Models.Account;
 [TestableClass]
 public class JwtToken
 {
-    private static string key; // Değişken tipi değiştirilebilir
+    private static string? key; // Değişken tipi değiştirilebilir
 
-    public int UserID { get; set; }
+    public ulong UserID { get; set; }
     public int UserRole { get; set; }
     public DateTime Expiration { get; set; }
 
@@ -62,10 +62,11 @@ public class JwtToken
         var userIdClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserID");
         var userRoleClaim = jsonWebToken.Claims.FirstOrDefault(c => c.Type == "UserRole");
 
-        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out var parsedUserId))
+        if (userIdClaim == null || !ulong.TryParse(userIdClaim.Value, out var parsedUserId))
         {
             throw new SecurityTokenException("JWT UserID claim bulunamadı veya geçersiz!");
         }
+      
 
         if (userRoleClaim == null || !int.TryParse(userRoleClaim.Value, out var parsedUserRole))
         {
