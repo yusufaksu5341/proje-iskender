@@ -16,9 +16,37 @@ class FlameBidWidget {
 
         this._holdTimer    = null;
         this._holdInterval = null;
+        this._plusCount    = 0;
 
+        this._injectBgFlames();
         this._render();
         this._bind();
+    }
+
+    _injectBgFlames() {
+        const wrap = document.createElement('div');
+        wrap.className = 'bid-bg-flames';
+        wrap.innerHTML =
+            '<div class="aura-ring aura-ring-1"></div>' +
+            '<div class="aura-ring aura-ring-2"></div>' +
+            '<div class="aura-ring aura-ring-3"></div>' +
+            '<div class="bg-glow"></div>';
+        this._bgFlames = wrap;
+        const display = this.el.querySelector('.flame-bid-display');
+        display.style.overflow = 'visible';
+        display.insertBefore(wrap, display.firstChild);
+    }
+
+    _updateBgFlames() {
+        if (this._plusCount >= 2) {
+            this._bgFlames.classList.add('active');
+            // 2. basışta level 1, her 3 basışta bir kademe yükselir (max 4)
+            const level = Math.min(4, Math.floor((this._plusCount - 2) / 3) + 1);
+            this._bgFlames.dataset.level = level;
+        } else {
+            this._bgFlames.classList.remove('active');
+            delete this._bgFlames.dataset.level;
+        }
     }
 
     _render() {
@@ -29,6 +57,13 @@ class FlameBidWidget {
         const next = Math.min(this.max, Math.max(this.min, this.val + delta));
         if (next === this.val) return;
         this.val = next;
+
+        if (delta > 0) {
+            this._plusCount++;
+        } else {
+            this._plusCount = Math.max(0, this._plusCount - 1);
+        }
+        this._updateBgFlames();
         this._render();
         this._burst(delta > 0 ? 'hot' : 'cold');
         this._pulse(delta > 0 ? 'up' : 'down');
@@ -42,7 +77,7 @@ class FlameBidWidget {
 
         for (let i = 0; i < count; i++) {
             setTimeout(() => {
-                const p   = document.createElement('div');
+                const p = document.createElement('div');
                 p.className = `fp fp-${type}`;
                 const w   = 6  + Math.random() * 14;
                 const h   = w  * (1.3 + Math.random() * .7);
@@ -54,15 +89,11 @@ class FlameBidWidget {
                 const top = 15 + Math.random() * 65;
                 const clr = colors[Math.floor(Math.random() * colors.length)];
                 p.style.cssText = [
-                    `width:${w}px`,
-                    `height:${h}px`,
-                    `left:${lft}%`,
-                    `top:${top}%`,
+                    `width:${w}px`, `height:${h}px`,
+                    `left:${lft}%`, `top:${top}%`,
                     `background:radial-gradient(ellipse at 50% 80%, ${clr} 0%, transparent 75%)`,
                     `box-shadow:0 0 ${Math.round(w * .7)}px ${clr}`,
-                    `--tx:${tx}px`,
-                    `--ty:${ty}px`,
-                    `--rot:${rot}deg`,
+                    `--tx:${tx}px`, `--ty:${ty}px`, `--rot:${rot}deg`,
                     `animation-duration:${dur}s`,
                 ].join(';');
                 this.particles.appendChild(p);
@@ -109,14 +140,17 @@ class FlameBidWidget {
     getValue() { return this.val; }
 }
 
+/* =========================================================
+   DOM HAZIR
+   ========================================================= */
 document.addEventListener('DOMContentLoaded', () => {
+
+    /* Flame bid widget — tüm örnekleri başlat */
     document.querySelectorAll('.flame-bid-wrap[data-step]').forEach(el => {
         el._flameBid = new FlameBidWidget(el);
     });
-});
 
-    const timers = document.querySelectorAll('.countdown-timer[data-ends]');
-
+    /* Geri sayım zamanlayıcıları */
     function formatTime(secs) {
         const h = Math.floor(secs / 3600);
         const m = Math.floor((secs % 3600) / 60);
@@ -124,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${h}s ${String(m).padStart(2, '0')}d ${String(s).padStart(2, '0')}sn`;
     }
 
-    timers.forEach(el => {
+    document.querySelectorAll('.countdown-timer[data-ends]').forEach(el => {
         let remaining = parseInt(el.dataset.ends, 10);
         el.textContent = formatTime(remaining);
 
@@ -137,32 +171,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 const card = el.closest('.listing-card');
                 if (card) {
                     const btn = card.querySelector('.btn-bid');
-                    if (btn) {
-                        btn.textContent = 'Artırma Bitti';
-                        btn.disabled = true;
-                        btn.style.opacity = '.5';
-                    }
+                    if (btn) { btn.textContent = 'Artırma Bitti'; btn.disabled = true; btn.style.opacity = '.5'; }
                 }
                 return;
             }
             el.textContent = formatTime(remaining);
-            if (remaining < 300) {
-                el.style.color = 'var(--fire-red)';
-            }
+            if (remaining < 300) el.style.color = 'var(--fire-red)';
         }, 1000);
     });
 
+    /* Favori butonları */
     document.querySelectorAll('.wishlist-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
+        btn.addEventListener('click', e => {
             e.stopPropagation();
             const active = btn.dataset.active === '1';
             btn.dataset.active = active ? '0' : '1';
-            btn.textContent = active ? 'Favori' : 'Favoride';
+            btn.textContent = active ? '♡' : '♥';
             btn.style.color = active ? '' : 'var(--fire-red)';
             btn.style.borderColor = active ? '' : 'var(--fire-red)';
         });
     });
 
+    /* Hamburger menü */
     const menuToggle = document.getElementById('menuToggle');
     const mobileMenu = document.getElementById('mobileMenu');
     if (menuToggle && mobileMenu) {
@@ -178,6 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    /* Arama */
     const searchInput = document.querySelector('.nav-search input');
     if (searchInput) {
         searchInput.addEventListener('keydown', e => {

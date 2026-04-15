@@ -26,7 +26,7 @@ public static class IlanStore
         new IlanModel
         {
             Id           = 2,
-            Baslik       = "Fender Stratocaster American Professional II",
+            Baslik       = "Kurt Cobain'in Gitarı",
             Kategori     = "Müzik Aletleri",
             Sehir        = "Ankara",
             Icon         = "",
@@ -37,8 +37,8 @@ public static class IlanStore
             TeklifSayisi = 7,
             KalanSaniye  = 43200,
             Badge        = "new",
-            SaticiAdi    = "muzisyen_88",
-            Aciklama     = "2021 model Fender Stratocaster American Professional II. 3 ay kullanıldı, küçük bir kaç çizik dışında mükemmel durumda. Orijinal kılıfıyla birlikte.",
+            SaticiAdi    = "Kurt Cobain",
+            Aciklama     = "İntihar Etcem Satıyom",
         },
         new IlanModel
         {

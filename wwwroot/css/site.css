@@ -1215,6 +1215,8 @@ footer.fire-footer {
     color: var(--text-muted);
     text-align: center;
     margin-top: .35rem;
+    position: relative;
+    z-index: 2;
 }
 
 /* +/- Butonlar */
@@ -1299,6 +1301,143 @@ footer.fire-footer {
 }
 .flame-bid-num.pulse-up   { animation: bid-pulse-up .3s ease-out; }
 .flame-bid-num.pulse-down { animation: bid-pulse-down .3s ease-out; }
+
+/* --------------------------------------------------
+   BALATRO AURA EFEKTİ — dönen conic-gradient halkalar
+   -------------------------------------------------- */
+.bid-bg-flames {
+    position: absolute;
+    inset: -14px -22px;
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+    transform: scale(.75);
+    transition: opacity .5s ease, transform .5s ease, filter .4s ease;
+    /* Ortada fiyat bölgesi saydam kalır, kenarlarda parlar */
+    -webkit-mask-image: radial-gradient(
+        ellipse 46% 52% at 50% 43%,
+        transparent 38%, black 68%
+    );
+    mask-image: radial-gradient(
+        ellipse 46% 52% at 50% 43%,
+        transparent 38%, black 68%
+    );
+}
+.bid-bg-flames.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Kademe: parlaklık + boyut birlikte yükselir */
+.bid-bg-flames[data-level="1"] {
+    filter: brightness(.65);
+    transform: scale(.88);
+}
+.bid-bg-flames[data-level="2"] {
+    filter: brightness(1.05);
+    transform: scale(1);
+}
+.bid-bg-flames[data-level="3"] {
+    filter: brightness(1.55) saturate(1.35);
+    transform: scale(1.14);
+}
+.bid-bg-flames[data-level="4"] {
+    filter: brightness(2.3) saturate(1.85);
+    transform: scale(1.32);
+}
+
+/* Ortak — dönen halka */
+.aura-ring {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    animation: aura-spin linear infinite;
+    mix-blend-mode: screen;
+}
+
+/* Halka 1 — yavaş, geniş bulanık, ana turuncu-sarı */
+.aura-ring-1 {
+    background: conic-gradient(
+        from 0deg,
+        transparent   0%,
+        #6b0000       6%,
+        #ff3300      18%,
+        #ff8800      30%,
+        #ffdd00      40%,
+        transparent  50%,
+        #aa2200      66%,
+        #ff6600      78%,
+        #ffbb00      88%,
+        transparent 100%
+    );
+    filter: blur(14px);
+    animation-duration: 3s;
+}
+
+/* Halka 2 — orta hız, ters yön, daha yayılmış */
+.aura-ring-2 {
+    background: conic-gradient(
+        from 60deg,
+        transparent  0%,
+        #ff5500     13%,
+        #ffcc00     26%,
+        transparent 38%,
+        #dd1100     58%,
+        #ff7700     72%,
+        transparent 83%,
+        #ff3300     94%,
+        transparent 100%
+    );
+    filter: blur(20px);
+    animation-duration: 4.6s;
+    animation-direction: reverse;
+    opacity: .8;
+}
+
+/* Halka 3 — hızlı, ince, iç parlak şerit */
+.aura-ring-3 {
+    inset: 14px 18px;
+    background: conic-gradient(
+        from 120deg,
+        transparent  0%,
+        #ff2200       8%,
+        #ffaa00      18%,
+        transparent  28%,
+        #ff4400      55%,
+        transparent  65%,
+        #ff8800      82%,
+        transparent 100%
+    );
+    filter: blur(6px);
+    animation-duration: 1.85s;
+    opacity: .55;
+}
+
+/* Taban parıltısı — altta sabit, nefes alır */
+.bg-glow {
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 72%; height: 48%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse,
+        #ff4400aa 0%,
+        #ff220044 55%,
+        transparent 80%
+    );
+    filter: blur(12px);
+    mix-blend-mode: screen;
+    animation: bgf-glow 2s ease-in-out infinite;
+}
+
+@keyframes bgf-glow {
+    0%,100% { transform: translateX(-50%) scaleX(1);    opacity: .6; }
+    50%      { transform: translateX(-50%) scaleX(1.22); opacity: 1;  }
+}
+@keyframes aura-spin {
+    to { transform: rotate(360deg); }
+}
 
 
 /* =========================================================
