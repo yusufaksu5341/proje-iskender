@@ -13,8 +13,14 @@ public class TestUserService : IUserService
     /*
      * TODO: Veritabanı bağlantısı eklendiği zaman bu işlemleri gerçek veritabanı ile eşleştir
      */
+    private ulong lastId = 0;
     private Dictionary<ulong, UserData> testData = new Dictionary<ulong, UserData>();
-    private static byte[] emailKey;
+    private byte[] emailKey;
+
+    public TestUserService(byte[] emailKey)
+    {
+        this.emailKey = emailKey;
+    }
 
     public UserData? GetUserById(ulong userId)
     {
@@ -96,12 +102,19 @@ public class TestUserService : IUserService
 
     public bool AddUser(UserData user)
     {
-        // Postman api testinde sorun yaratmasın diye ekledim. -H
-        if (user == null)
+        try
         {
-            return false;
-        } 
-        return true;
+            _ = testData.First(x => x.Value.UserMail == user.UserMail || x.Value.UserName == user.UserName);
+
+            ulong id = lastId++;
+            user.UserId = id;
+            testData.Add(id, user);
+            return true;
+        }
+        catch (Exception e)
+        { }
+
+        return false;
     }
 
     private static TestUserService testService;
@@ -109,8 +122,7 @@ public class TestUserService : IUserService
     [TestInit]
     public static void TestInit()
     {
-        emailKey = Encoding.UTF8.GetBytes("test-key");
-        testService = new TestUserService();
+        testService = new TestUserService(Encoding.UTF8.GetBytes("test-key"));
         testService.testData.Add(0, new UserData() 
         {
             UserId = 0,
