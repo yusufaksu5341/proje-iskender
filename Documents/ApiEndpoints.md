@@ -1,13 +1,19 @@
 # İçerik
 
 - [Endpoint'ler](#endpointler)
-    - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
-    - [/api/product/search](#get-apiproductsearch) | Ürün aratma
-    - [/api/user/search](#get-apiusersearch) | Kullanıcı aratma
+    - [Account](#account-endpointleri)
+      - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
+      - [/api/account/register](#post-apiaccountregister) | Hesap oluşturma
+    - [Product](#product-endpointleri)
+      - [/api/product/search](#get-apiproductsearch) | Ürün aratma
+      - [/api/user/search](#get-apiusersearch) | Kullanıcı aratma
+    - [Resource](#resource-endpointleri)
 - [Veri Tipleri](#veri-tipleri)
     - [Search-Respond](#search-respond) | [/api/search-prod](#get-apisearch-prod) dönüş değeri
 
 # Endpoint'ler
+
+# Account Endpoint'leri
 
 ## GET /api/account/login
 
@@ -102,7 +108,59 @@ Content-Length: ...
 Kullanıcı başarıyla oluşturuldu!
 ```
 
-## POST /api/account/{userId}/validate-email/{validationCode}
+## GET /api/account/{userId}
+
+Kullanıcı profilinin verilerini döndürür
+
+> NOT
+> 
+> Kullanıcının profil fotoğrafı da url olarak dönücek
+> 
+> userId gönderilmezse kullanıcının kendi profili açılacak
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+## POST /api/account/{userId}/verify-email
+
+Kullanıcının Email'ini doğrılamasını sağlar
+
+> NOT
+> 
+> Doğrulama kodu URL üzerinden alınacak
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Hayır |
+
+## GET /api/account/search
+
+> NOT
+>
+> Kullanıcı adı üzerinden arıyacak o yüzden çok da uğraşmana gerek yok.
+> 
+> Url üzerinden göndericek sorguyu
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+## PUT /api/account/{userId}/picture
+
+> NOT
+>
+> KULLANICIYI KONTROL ETMEYİ UNUTMA kldsfjslkfjs
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+# Product Endpoint'leri
 
 ## GET /api/product/search
 
@@ -111,7 +169,7 @@ Kullanıcının aradığı ürünleri yirmişer sayfalar olarak döndürür.
 | Özellik | Değer |
 |---|-------|
 | Yetkilendirme | Hayır |
-| Kimlik Doğrulama | Hayır |
+| Kimlik Doğrulama | Evet  |
 
 ### Parametreler:
 `Accept: application/x-www-form-urlencoded`
@@ -164,7 +222,7 @@ Content-Length: ...
 
 ## POST /api/product/{productId}/bid
 
-## GET /api/user/search
+# Resource Endpoint'leri
 
 # Veri Tipleri
 
