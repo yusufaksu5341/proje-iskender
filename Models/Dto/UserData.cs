@@ -6,5 +6,5 @@ public class UserData
     required public string UserName { get; set; }
     required public string UserMail { get; set; }
     required public string UserPassword { get; set; }
-    required public string UserRole { get; set; }
+    required public UserRoles UserRole { get; set; }
 }

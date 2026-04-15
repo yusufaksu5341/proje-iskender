@@ -3,6 +3,7 @@ using ProjeIskender.Models.Dto;
 using ProjeIskender.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using ProjeIskender.Models;
 
 namespace ProjeIskender.Controllers.Api;
 
@@ -22,7 +23,7 @@ public class Account : ControllerBase
     [HttpGet("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
-        UserData? user = null;
+        UserData user;
 
         if (request.NameType == 0)
         {
@@ -30,7 +31,7 @@ public class Account : ControllerBase
             {
                 return BadRequest("Geçersiz email veya şifre!");
             }
-            user = userService.GetUserByEmail(request.Name);
+            user = userService.GetUserByEmail(request.Name)!;
         }
         else if (request.NameType == 1)
         {
@@ -38,19 +39,17 @@ public class Account : ControllerBase
             {
                 return BadRequest("Geçersiz kullanıcı adı veya şifre!");
             }
-            user = userService.GetUserByName(request.Name);
+            user = userService.GetUserByName(request.Name)!;
         }
         else
         {
             return BadRequest("Geçersiz NameType değeri!");
         }
-        
-        var role = string.Equals(user!.UserRole, "Admin", StringComparison.OrdinalIgnoreCase) ? 1 : 0;
 
         var token = new JwtToken()
         {
-            UserID = (int)user.UserId!,
-            UserRole = role,
+            UserID = (int)user.UserId,
+            UserRole = (byte)user.UserRole,
             Expiration = DateTime.UtcNow.AddHours(1)
         };
 
@@ -76,7 +75,7 @@ public class Account : ControllerBase
             UserMail = request.UserMail,
             UserName = request.UserName,
             UserPassword = request.UserPassword,
-            UserRole = "Guest"
+            UserRole = UserRoles.MEMBER
         });
 
         if(!AddUser)
