@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using ProjeIskender.Services;
 using ProjeIskender.Models.Dto;
 using System.Text;
+using ProjeIskender.Models;
 
 namespace ProjeIskender.Services.Implementation;
 
@@ -116,7 +117,7 @@ public class TestUserService : IUserService
             UserName = "test0",
             UserMail = "test1@email.com",
             UserPassword = "test1234",
-            UserRole = "Guest"
+            UserRole = UserRoles.MEMBER
         });
         testService.testData.Add(1, new UserData() 
         {
@@ -124,7 +125,7 @@ public class TestUserService : IUserService
             UserName = "test1",
             UserMail = "test2@email.com",
             UserPassword = "asdf1234",
-            UserRole = "Guest"
+            UserRole = UserRoles.MEMBER
         });
         testService.testData.Add(2, new UserData()
         {
@@ -132,7 +133,7 @@ public class TestUserService : IUserService
             UserName = "penguen",
             UserMail = "los-penguenos@email.com",
             UserPassword = "penguen-lover-49",
-            UserRole = "Admin"
+            UserRole = UserRoles.ADMIN
         });
     }
 
