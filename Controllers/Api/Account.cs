@@ -120,17 +120,22 @@ public class Account : ControllerBase
         });
     }
 
-    [HttpPost("{userId}/verify-email")]
-    public IActionResult VerifyEmail(ulong UserId)
+    [HttpPost("{userId}/verify-email/{mailCode}")]
+    public IActionResult VerifyEmail(ulong UserId, string mailCode)
     {
         var user = userService.GetUserById(UserId);
         if (user == null)
         {
             return NotFound("Kullanıcı bulunamadı!");
         }
-
-        var mailCode = userService.GenerateEmailVerification(user.UserMail);
-        return Ok(mailCode);
+        
+        var verificationResult = userService.VerifyEmail(user.UserMail, mailCode);
+        
+        if (!verificationResult)
+        {
+            return BadRequest("Email doğrulama başarısız!");
+        }
+        return Ok("Email doğrulama başarılı!");
     }
 
     [Authentication]
