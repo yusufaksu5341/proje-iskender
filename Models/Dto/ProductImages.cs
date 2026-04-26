@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
 namespace ProjeIskender.Models.Dto;
 
+[Table("product_image_tb")]
+[PrimaryKey("ProductId", "ResourcePath")]
 public class ProductImages
 {
-    public ulong ProductId { get; set; }
-    public string ResourcePath { get; set; }
+    [Column("product_id")] public required ulong ProductId { get; set; }
+    [Column("resource_path")] public required string ResourcePath { get; set; }
 }

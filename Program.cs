@@ -1,12 +1,22 @@
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using ProjeIskender.Context;
 using ProjeIskender.Middlewares;
+using ProjeIskender.Models.Account;
 using ProjeIskender.Services;
 using ProjeIskender.Services.Implementation;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 #if !_TEST
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("config.json");
+
+JwtToken.LoadKey("a-string-secret-at-least-256-bits-long");
+
 
 // Add services to the container.
+builder.Services.AddDbContext<IskenderContext>(x => x.UseNpgsql(builder.Configuration["ConnectionString"]!));
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 
@@ -30,6 +40,7 @@ app.UseRouting();
 
 app.UseMiddleware<AuthenticationMiddleware>();
 app.UseMiddleware<AuthorizationMiddleware>();
+app.UseMiddleware<ContentAcceptMiddleware>();
 
 app.MapStaticAssets();
 

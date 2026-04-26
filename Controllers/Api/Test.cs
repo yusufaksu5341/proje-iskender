@@ -15,5 +15,12 @@ namespace ProjeIskender.Controllers.Api
         {
             return Ok("test");
         }
+
+        [HttpPost("image")]
+        [ContentAccept("image/png")]
+        public IActionResult Image()
+        {
+            return Ok("Success!");
+        }
     }
 }
