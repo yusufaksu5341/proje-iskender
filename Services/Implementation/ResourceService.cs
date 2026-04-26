@@ -1,42 +1,61 @@
+using System.Net;
+using ProjeIskender.Context;
+using ProjeIskender.Models.Dto;
+
 namespace ProjeIskender.Services.Implementation;
 
 public class ResourceService : IResourceService
 {
-    public string CreateResource(FileStream stream)
+    private IskenderContext _context;
+
+    public ResourceService(IskenderContext context)
     {
-        string guid;
-        while (File.Exists(guid = $"resource/{Guid.NewGuid()}"))
+        _context = context;
+    }
+    
+    public string CreateResource(string contentType, Stream stream)
+    {
+        var whiteList = _context.ContentTypeWhitelist;
+        var resource = _context.Resource;
+        
+        ContentTypeWhitelist type;
+        
+        type = whiteList.First(x => x.ContentType == contentType);
+
+        var guid = Guid.NewGuid();
+
+        for (int x = 0; x < 10; x++)
         {
+            resource.Add(new Resource()
+            {
+                ContentType = type.ContentType,
+                ResourceName = guid.ToString()
+            });
+            int entries = _context.SaveChanges();
+
+            if (entries == 1)
+            {
+                var path = $"resource/{guid}";
+                using (FileStream fileStream = System.IO.File.OpenWrite(path))
+                {
+                    stream.CopyTo(fileStream);
+                }
+
+                return path;
+            }
         }
 
-        using (var writer = File.OpenWrite(guid))
-        {
-            stream.CopyTo(writer);
-            writer.Flush();
-        }
-
-        return guid;
+        throw new Exception("Cannot generate unique GUID");
     }
 
-    public string CreateResource(byte[] data)
+    public string CreateResource(string contentType, byte[] data)
     {
-        string guid;
-        while (File.Exists(guid = $"resource/{Guid.NewGuid()}"))
-        {
-        }
-
         var stream = new MemoryStream(data);
 
-        using (var writer = File.OpenWrite(guid))
-        {
-            stream.CopyTo(writer);
-            writer.Flush();
-        }
-
-        return guid;
+        return CreateResource(contentType, stream);
     }
 
-    public bool CreateResourceByName(string name, FileStream stream)
+    public bool CreateResourceByName(string name, Stream stream)
     {
         name = $"resource/{name}";
         if (File.Exists(name))

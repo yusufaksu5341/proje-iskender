@@ -13,8 +13,24 @@ public class TestUserService : IUserService
     /*
      * TODO: Veritabanı bağlantısı eklendiği zaman bu işlemleri gerçek veritabanı ile eşleştir
      */
-    private ulong lastId = 0;
-    private Dictionary<ulong, UserData> testData = new Dictionary<ulong, UserData>();
+    private static ulong _lastId;
+
+    public static ulong lastId
+    {
+        get => _lastId;
+        set => _lastId = value;
+    }
+    private static Dictionary<ulong, UserData> _testData;
+
+    public static Dictionary<ulong, UserData> testData
+    {
+        get
+        {
+            if (_testData == null)
+                _testData = new();
+            return _testData;
+        }
+    }
     private byte[] emailKey;
 
     public TestUserService(byte[] emailKey)
@@ -106,15 +122,16 @@ public class TestUserService : IUserService
         {
             _ = testData.First(x => x.Value.UserMail == user.UserMail || x.Value.UserName == user.UserName);
 
-            ulong id = lastId++;
-            user.UserId = id;
-            testData.Add(id, user);
-            return true;
+            return false;
         }
         catch (Exception e)
         { }
+        
+        ulong id = lastId++;
+        user.UserId = id;
+        testData.Add(id, user);
 
-        return false;
+        return true;
     }
 
     private static TestUserService testService;
@@ -123,7 +140,7 @@ public class TestUserService : IUserService
     public static void TestInit()
     {
         testService = new TestUserService(Encoding.UTF8.GetBytes("test-key"));
-        testService.testData.Add(0, new UserData() 
+        testData.Add(0, new UserData() 
         {
             UserId = 0,
             UserName = "test0",
@@ -131,7 +148,7 @@ public class TestUserService : IUserService
             UserPassword = "test1234",
             UserRole = UserRoles.MEMBER
         });
-        testService.testData.Add(1, new UserData() 
+        testData.Add(1, new UserData() 
         {
             UserId = 1,
             UserName = "test1",
@@ -139,7 +156,7 @@ public class TestUserService : IUserService
             UserPassword = "asdf1234",
             UserRole = UserRoles.MEMBER
         });
-        testService.testData.Add(2, new UserData()
+        testData.Add(2, new UserData()
         {
             UserId = 2,
             UserName = "penguen",
