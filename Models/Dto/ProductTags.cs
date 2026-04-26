@@ -1,7 +1,12 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+
 namespace ProjeIskender.Models.Dto;
 
+[Table("product_tag_tb")]
+[PrimaryKey("ProductId", "TagId")]
 public class ProductTags
 {
-    public required ulong Product { get; set; }
-    public required ulong Tag { get; set; }
+    [Column("product_id")] public required ulong ProductId { get; set; }
+    [Column("tag_id")] public required ulong TagId { get; set; }
 }
