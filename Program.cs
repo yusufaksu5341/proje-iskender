@@ -10,7 +10,7 @@ AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 #if !_TEST
 var builder = WebApplication.CreateBuilder(args);
-builder.Configuration.AddJsonFile("config.json");
+builder.Configuration.AddJsonFile("config.json"); // config.json eklemeyi unutmayın!
 
 JwtToken.LoadKey("a-string-secret-at-least-256-bits-long");
 

@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace ProjeIskender.Models.Dto;
@@ -19,4 +20,7 @@ public class ProductData
     [Column("starting_price")] public required float StartingPrice { get; set; }
     [Column("current_price")] public required float CurrentPrice { get; set; }
     [Column("single_price"), DefaultValue(false)] public bool SinglePrice { get; set; } = false;
+
+    [Column("details"), DefaultValue(null)] public JsonElement? Details { get; set; } = null;
+    [Column("main_image"), DefaultValue(null)] public string? MainImage { get; set; } = null;
 }

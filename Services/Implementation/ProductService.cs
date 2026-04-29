@@ -4,6 +4,7 @@ using ProjeIskender.Context;
 using ProjeIskender.Controllers.Api;
 using ProjeIskender.Models;
 using ProjeIskender.Models.Dto;
+using ProjeIskender.Models.Exceptions;
 
 namespace ProjeIskender.Services.Implementation;
 
@@ -67,6 +68,39 @@ public class ProductService : IProductService
         return product;
     }
 
+    public bool IsFollowed(ulong userId, ulong productId)
+    {
+        var userFollow = _context.UserFollow;
+
+        var follow = userFollow.Find(userId, productId);
+
+        return follow != null;
+    }
+
+    public void FollowProduct(ulong userId, ulong productId)
+    {
+        var userFollow = _context.UserFollow;
+
+        var follow = userFollow.Find(userId, productId);
+
+        if (follow == null)
+        {
+            follow = new UserFollow()
+            {
+                UserId = userId,
+                ProductId = productId
+            };
+            
+            userFollow.Add(follow);
+        }
+        else
+        {
+            userFollow.Remove(follow);
+        }
+        
+        _context.SaveChanges();
+    }
+
     public IEnumerable<float> GetProductPriceAll(ulong productId)
     {
         var prices = _context.ProductPrice;
@@ -104,6 +138,13 @@ public class ProductService : IProductService
         }
     }
 
+    public IEnumerable<string> GetProductImages(ulong productId)
+    {
+        var productImages = _context.ProductImages;
+
+        return productImages.Where(x => x.ProductId == productId).Select(x => x.ResourcePath);
+    }
+
     public ulong CreateProduct(ProductData product)
     {
         _context.ProductData.Add(product);
@@ -115,11 +156,24 @@ public class ProductService : IProductService
 
     public void DeleteProduct(ulong productId)
     {
-        var products = _context.ProductData;
+        var productData = _context.ProductData;
 
-        var product = products.First(x => x.ProductId == productId);
+        var product = productData.First(x => x.ProductId == productId);
+
+        product.Visible = false;
         
-        products.Remove(product);
+        productData.Update(product);
+        
+        _context.SaveChanges();
+    }
+    
+    public void HardDeleteProduct(ulong productId)
+    {
+        var productData = _context.ProductData;
+
+        var product = productData.First(x => x.ProductId == productId);
+        
+        productData.Remove(product);
         
         _context.SaveChanges();
     }
@@ -173,5 +227,27 @@ public class ProductService : IProductService
         
         _context.SaveChanges();
         return true;
+    }
+
+    public void SetMainImage(ulong productId, ulong ownerId, string imagePath)
+    {
+        var productData =  _context.ProductData;
+        
+        var product = productData.Find(productId);
+        
+        if (product == null)
+            throw new Exception("Product not found");
+
+        if (product.OwnerId != ownerId)
+            throw new UserNotOwnerException();
+        
+        product.MainImage = imagePath;
+        
+        productData.Update(product);
+
+        if (_context.SaveChanges() != 1)
+        {
+            throw new InternalErrorException();
+        }
     }
 }

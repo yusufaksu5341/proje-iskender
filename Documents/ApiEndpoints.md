@@ -1,19 +1,20 @@
 # İçerik
 
 - [Endpoint'ler](#endpointler)
-    - [Account](#account-endpointleri)
-      - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
-      - [/api/account/register](#post-apiaccountregister) | Hesap oluşturma
-    - [Product](#product-endpointleri)
-      - [/api/product/search](#get-apiproductsearch) | Ürün aratma
-      - [/api/user/search](#get-apiusersearch) | Kullanıcı aratma
-    - [Resource](#resource-endpointleri)
+    - [/api/account/login](#get-apiaccountlogin) | Kullanıcı girişi
+    - Product
+        - [GET /api/product/{productId}](#get-apiproductproductid) | Ürün verisi çekme
+        - [POST /api/product/create](#post-apiproductcreate) | Ürün oluşturma
+        - [POST /api/product/{productId}/image](#post-apiproductproductidimage) | Ürün fotoğrafı ekleme
+        - [PUT /api/product/{productId}/image/{resourcePath}](#put-apiproductproductidimageresourcepath) | Ürün kapak fotoğrafı değiştirme
+        - [GET /api/product/search](#get-apiproductsearch) | Ürün aratma
+        - [GET /api/product/{productId}/follow](#get-apiproductproductidfollow) | Ürünün takip edilip edilmediğini kontrol etme
+        - [POST /api/product/{productId}/follow](#post-apiproductproductidfollow) | Ürün takip etme
+        - [POST /api/product/{productId}/bid](#post-apiproductproductidbid) | Ürüne fiyat koyma
 - [Veri Tipleri](#veri-tipleri)
     - [Search-Respond](#search-respond) | [/api/search-prod](#get-apisearch-prod) dönüş değeri
 
 # Endpoint'ler
-
-# Account Endpoint'leri
 
 ## GET /api/account/login
 
@@ -108,59 +109,97 @@ Content-Length: ...
 Kullanıcı başarıyla oluşturuldu!
 ```
 
-## GET /api/account/{userId}
+## POST /api/account/{userId}/validate-email/{validationCode}
 
-Kullanıcı profilinin verilerini döndürür
+## GET /api/product/{productId}
 
-> NOT
-> 
-> Kullanıcının profil fotoğrafı da url olarak dönücek
-> 
-> userId gönderilmezse kullanıcının kendi profili açılacak
+Ürün sayfasını döndürür
 
 | Özellik | Değer |
 |---|-------|
 | Yetkilendirme | Hayır |
 | Kimlik Doğrulama | Evet  |
 
-## POST /api/account/{userId}/verify-email
+### Parametreler:
 
-Kullanıcının Email'ini doğrılamasını sağlar
+[BOŞ]
 
-> NOT
+### Dönüş Değeri:
+`application/json`
+
+> TODO
 > 
-> Doğrulama kodu URL üzerinden alınacak
+> Buraya düzgün bir tablo getir
 
-| Özellik | Değer |
-|---|-------|
-| Yetkilendirme | Hayır |
-| Kimlik Doğrulama | Hayır |
+Detaylar için ProjeIskender.Models.Product.GetProductResult.cs dosyasına bakın
 
-## GET /api/account/search
+## POST /api/product/create
 
-> NOT
->
-> Kullanıcı adı üzerinden arıyacak o yüzden çok da uğraşmana gerek yok.
-> 
-> Url üzerinden göndericek sorguyu
+Kullanıcının ürün oluşturabilmesini sağlar. Görseller harici bir şekilder [POST /api/product/image](#post-apiproductproductidimage) endpoint'i üzerinden gönderilmelidir. Kapak fotoğrafı için [PUT /api/product/{productId}/image/{imagePath}](#put-apiproductproductidimageresourcepath)
 
 | Özellik | Değer |
 |---|-------|
 | Yetkilendirme | Hayır |
 | Kimlik Doğrulama | Evet  |
 
-## PUT /api/account/{userId}/picture
+### Parametreler:
+`Accept: application/json`
 
-> NOT
->
-> KULLANICIYI KONTROL ETMEYİ UNUTMA kldsfjslkfjs
+| isim         | Veri Tipi | Zorunlu | Varsayılan | Açıklama                                                                     |
+|--------------|-----------|---------|------------|------------------------------------------------------------------------------|
+| name         | char[128] | Evet    | Yok        | Ürün adı                                                                     |
+| price        | float64   | Evet    | Yok        | Ürünün başlangıç fiyatını belirtir                                           |
+| single-price | bool      | Evet    | Yok        | Ürünün tek fiyatlı mı yoksa açık arttırma mı olacağını belirler              |
+| expire       | DateTime? | Evet    | Null       | Ürünün son geçerlilik tarihi. Eğer tek fiyatsa tarih belirtilmesine gerek yok |
+| details      | Json?     | Hayır   | Null       | Ürün hakkında kuralsız detaylar listesi                                      |
+
+
+### Dönüş Değeri:
+`plain/text`
+
+Oluşturulan ürünün id değerini döndürür
+
+## POST /api/product/{productId}/image
+
+Ürüne görsel eklemeyi sağlar.
 
 | Özellik | Değer |
 |---|-------|
 | Yetkilendirme | Hayır |
 | Kimlik Doğrulama | Evet  |
 
-# Product Endpoint'leri
+### Parametreler:
+`Accept: Whitelist Dosya Formatları`
+
+Whitelist'deki görsel formatlarını destekler
+
+### Dönüş Değeri:
+`plain/text`
+
+Kaynağın api uzantısını döndürür
+
+## PUT /api/product/{productId}/image/{resourcePath}
+
+> NOT
+> 
+> resourcePath değişkeni "resource/gorsel-yolu" formatında olmalıdır
+ 
+Ürünün kapak görselini değiştirir
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+### Parametreler:
+
+[BOŞ]
+
+### Dönüş Değeri:
+
+[BOŞ]
+
+[Başarılı durumda 202-OK döndürür]
 
 ## GET /api/product/search
 
@@ -218,17 +257,89 @@ Content-Length: ...
 }
 ```
 
+## GET /api/product/{productId}/follow
+
+Kullanıcının ürünü takip edip etmediğini gösterir
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+### Parametreler:
+
+[BOŞ]
+
+### Dönüş Değeri:
+`Content-Type: text/plain`
+
+Eğer takip ediliyorsa `true`, aksi halde `false` metni döndürür
+
 ## POST /api/product/{productId}/follow
+
+Kullanıcı eğer takip ediyorsa takipten çıkarır, eğer takip etmiyorsa takip eder
+r
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+### Parametreler:
+
+[BOŞ]
+
+### Dönüş Değeri:
+
+[BOŞ]
 
 ## POST /api/product/{productId}/bid
 
-# Resource Endpoint'leri
+Kullanıcının ürüne fiyat artırma yapmasını sağlar
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+### Parametreler:
+`Accept: application/x-www-form-urlencoded`
+
+| isim  | Veri Tipi | Zorunlu | Varsayılan | Açıklama       |
+|-------|-----------|---------|------------|----------------|
+| price | float32   | Evet    | YOK        | Artırma değeri |
+
+### Dönüş Değeri:
+
+[BOŞ]
+
+[Başarılı durumda 202-OK döndürür]
+
+## POST /api/product/{productId}/buy
+
+Kullanıcının ürünü satın almasını sağlar
+
+| Özellik | Değer |
+|---|-------|
+| Yetkilendirme | Hayır |
+| Kimlik Doğrulama | Evet  |
+
+### Parametreler:
+
+[BOŞ]
+
+### Dönüş Değeri:
+
+[BOŞ]
+
+[Başarılı durumda 202-OK döndürür]
+
+## GET /api/user/search
 
 # Veri Tipleri
 
 ## Search-Respond
 
-[/api/search-prod](#get-apisearch-prod) dönüş değeri
+[/api/product/search](#get-apiproductsearch) dönüş değeri
 
 | isim            | Veri Tipi | Zorunlu  | Açıklama             |
 |-----------------|-----------|----------|----------------------|
