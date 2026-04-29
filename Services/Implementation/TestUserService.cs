@@ -20,7 +20,7 @@ public class TestUserService : IUserService
         get => _lastId;
         set => _lastId = value;
     }
-    private static Dictionary<ulong, UserData> _testData;
+    private static Dictionary<ulong, UserData>? _testData;
 
     public static Dictionary<ulong, UserData> testData
     {
@@ -138,7 +138,7 @@ public class TestUserService : IUserService
     {
         if (testData.TryGetValue(userId, out var user))
         {
-            user.pictureUrl = pictureUrl;
+            user.PictureUrl = pictureUrl;
             return true;
         }
         return false;
