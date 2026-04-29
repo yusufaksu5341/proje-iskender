@@ -72,7 +72,7 @@ public class Account : ControllerBase
             return BadRequest("Bu kullanıcı adı zaten kayıtlı!");
         }
 
-        var AddUser = userService.AddUser(new UserData()
+        var addUser = userService.AddUser(new UserData()
         {
             UserMail = request.UserMail,
             UserName = request.UserName,
@@ -80,7 +80,7 @@ public class Account : ControllerBase
             UserRole = UserRoles.MEMBER
         });
 
-        if(!AddUser)
+        if(!addUser)
         {
             return BadRequest("Kullanıcı oluşturulurken bir hata oluştu!");
         }
@@ -148,8 +148,9 @@ public class Account : ControllerBase
 
     [Authentication]
     [HttpPut("{userId}/picture")]
-    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl) 
+    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl)
     {
+        return NotFound();
         if(userId != (ulong)HttpContext.Items["UserID"]!)
         {
             return Forbid("Kendi profil resminizi güncelleyebilirsiniz!");
