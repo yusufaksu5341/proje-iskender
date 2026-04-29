@@ -116,7 +116,6 @@ public class Account : ControllerBase
             UserMail = requestedUser.UserMail,
             UserRole = requestedUser.UserRole,
             UserPassword = null!,
-            pictureUrl = requestedUser.pictureUrl
         });
     }
 
