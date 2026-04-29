@@ -48,7 +48,7 @@ public class Account : ControllerBase
 
         var token = new JwtToken()
         {
-            UserID = (int)user.UserId,
+            UserID = user.UserId,
             UserRole = (byte)user.UserRole,
             Expiration = DateTime.UtcNow.AddHours(1)
         };

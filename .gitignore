@@ -7,6 +7,8 @@ obj/
 *.user
 *.suo
 
+config.json
+
 # ASP.NET static web assets cache
 *.staticwebassets.runtime.json
 *.staticwebassets.endpoints.json
