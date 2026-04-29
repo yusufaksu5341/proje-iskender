@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using ProjeIskender.Attributes;
 using ProjeIskender.Models;
 using ProjeIskender.Models.Account;
 using ProjeIskender.Models.Dto;
+using ProjeIskender.Models.Exceptions;
 using ProjeIskender.Models.Product;
 using ProjeIskender.Services;
 
@@ -90,13 +92,26 @@ public class Product : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetProduct(ulong id)
     {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
         try
         {
             var prod = productService.GetProduct(id);
             if (prod.Visible == false)
                 return NotFound();
 
-            return Ok(prod);
+            if (prod.OwnerId != userId && prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+
+            return Ok(new GetProductResult()
+            {
+                Name = prod.Name,
+                CreationDate = prod.CreationDate,
+                ExpirationDate = prod.ExpirationDate,
+                CurrentPrice = prod.CurrentPrice,
+                StartingPrice = prod.StartingPrice,
+                MainImage = prod.MainImage,
+                Details = prod.Details
+            });
         }
         catch (Exception e)
         {
@@ -110,7 +125,7 @@ public class Product : ControllerBase
         [FromBody] CreateProductRequest createRequest
     )
     {
-        if (createRequest.ExpirationDate >= DateTime.Now.AddMonths(1))
+        if (!createRequest.SinglePrice && createRequest.ExpirationDate >= DateTime.Now.AddMonths(1))
         {
             return BadRequest("Teklif 1 aydan uzun olamaz");
         }
@@ -122,18 +137,125 @@ public class Product : ControllerBase
             CurrentPrice = createRequest.Price,
             StartingPrice = createRequest.Price,
             CreationDate = DateTime.Now,
-            ExpirationDate = createRequest.ExpirationDate,
+            ExpirationDate = createRequest.SinglePrice ? (DateTime)createRequest.ExpirationDate! : DateTime.MaxValue,
             OwnerId = userId,
-            Visible = createRequest.ImageCount == 0
+            Visible = true,
+            SinglePrice = createRequest.SinglePrice,
+            Details = (JsonElement?)createRequest.Details,
         };
 
         var prodId = productService.CreateProduct(product);
         
-        return Ok(prodId);
+        return Ok(prodId.ToString());
     }
 
-    [HttpPost("image")]
-    public IActionResult AddProductImage([FromQuery(Name = "product-id")] ulong productId)
+    [HttpGet("{productId}/image")]
+    public IActionResult GetProductImages(ulong productId)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        try
+        {
+            var prod = productService.GetProduct(productId);
+            if (prod.Visible == false || prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+
+            var images = productService.GetProductImages(productId).ToArray();
+
+            return Ok(new ProductImagesResult()
+            {
+                Count = images.Length,
+                Images = images
+            });
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
+    }
+    
+    [HttpGet("{productId}/follow")]
+    public IActionResult GetFollow(ulong productId)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        try
+        {
+            var prod = productService.GetProduct(productId);
+            if (prod.Visible == false || prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+            
+            return Ok(productService.IsFollowed(userId, productId));
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
+    }
+    
+    [HttpPost("{productId}/follow")]
+    public IActionResult Follow(ulong productId)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        try
+        {
+            var prod = productService.GetProduct(productId);
+            if (prod.Visible == false || prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+            
+            productService.FollowProduct(userId, productId);
+
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
+    }
+    
+    [HttpPost("{productId}/bid")]
+    public IActionResult BidOnProduct(ulong productId, [FromQuery] float price)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        try
+        {
+            var prod = productService.GetProduct(productId);
+            if (prod.Visible == false || prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+
+            if (prod.SinglePrice)
+                return BadRequest("Cannot bid buyable items");
+
+            productService.MakeBid(userId, productId, price);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
+    }
+    
+    [HttpPost("{productId}/buy")]
+    public IActionResult BuyProduct(ulong productId)
+    {
+        try
+        {
+            var prod = productService.GetProduct(productId);
+            if (prod.Visible == false || prod.ExpirationDate < DateTime.Now)
+                return NotFound();
+
+            if (!prod.SinglePrice)
+                return BadRequest("Cannot buy bidable items");
+
+            productService.DeleteProduct(productId);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPost("{productId}/image")]
+    public IActionResult AddProductImage(ulong productId)
     {
         ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
 
@@ -166,5 +288,32 @@ public class Product : ControllerBase
         {
             return StatusCode(StatusCodes.Status400BadRequest);
         }
+    }
+
+    [HttpPut("{productId}/image/resource/{imagePath}")]
+    public IActionResult SetMainImage(ulong productId, string imagePath)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+
+        try
+        {
+            productService.SetMainImage(productId, userId, $"resource/{imagePath}");
+
+            return Ok();
+        }
+        catch (UserNotOwnerException e)
+        {
+            return Forbid();
+        }
+        catch (InternalErrorException e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+        catch
+        {
+            
+        }
+
+        return BadRequest("Product does not exists");
     }
 }
