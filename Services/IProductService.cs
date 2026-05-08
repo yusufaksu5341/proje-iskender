@@ -29,4 +29,7 @@ public interface IProductService
     public bool MakeBid(ulong userId, ulong productId, float price);
     
     public void SetMainImage(ulong productId, ulong ownerId, string imagePath);
+
+    public IEnumerable<Comment> GetComment(ulong productId);
+    public void AddComment(ulong productId, ulong sender, string comment);
 }

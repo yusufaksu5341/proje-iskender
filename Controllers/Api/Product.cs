@@ -14,7 +14,7 @@ namespace ProjeIskender.Controllers.Api;
 
 [Route("api/product")]
 [ApiController]
-[Authentication]
+// [Authentication]
 public class Product : ControllerBase
 {
     private readonly IProductService productService;
@@ -70,7 +70,7 @@ public class Product : ControllerBase
                 .GetProducts(name, page, queryOrder, queryType)
                 .Select(x => new SearchRespondBody()
             {
-                Date = DateTime.SpecifyKind(x.CreationDate,  DateTimeKind.Unspecified),
+                Date = x.CreationDate,
                 Name = x.Name,
                 Price = x.CurrentPrice,
                 Id = x.ProductId
@@ -315,5 +315,27 @@ public class Product : ControllerBase
         }
 
         return BadRequest("Product does not exists");
+    }
+
+    [HttpGet("{productId}/comments")]
+    public IActionResult GetComments(ulong productId)
+    {
+        return Ok(productService.GetComment(productId));
+    }
+
+    [HttpPost("{productId}/comment")]
+    public IActionResult AddComment(ulong productId, [FromBody] SendCommentRequest comment)
+    {
+        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+
+        try
+        {
+            productService.AddComment(productId, userId, comment.Content);
+            return Ok();
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }

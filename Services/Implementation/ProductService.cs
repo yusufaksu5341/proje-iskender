@@ -250,4 +250,29 @@ public class ProductService : IProductService
             throw new InternalErrorException();
         }
     }
+
+    public IEnumerable<Comment> GetComment(ulong productId)
+    {
+        var commentData = _context.Comments;
+        var res = commentData.Where(x => x.ProductId == productId);
+
+        return res.ToArray();
+    }
+
+    public void AddComment(ulong productId, ulong sender, string comment)
+    {
+        var commentData = _context.Comments;
+        commentData.Add(new Comment()
+        {
+            UserId = sender,
+            ProductId = productId,
+            Content = comment,
+            Date = DateTime.Now
+        });
+
+        if (_context.SaveChanges() != 1)
+        {
+            throw new InternalErrorException();
+        }
+    }
 }
