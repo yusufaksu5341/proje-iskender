@@ -16,16 +16,18 @@ public class ProductService : IProductService
         _context = context;
     }
     
-    public IEnumerable<ProductData> GetProducts(string name, uint page = 0, QueryOrder order = QueryOrder.Descending, QueryType qtype = QueryType.Date)
+    public IEnumerable<ProductData> GetProducts(string name, uint page = 0, QueryOrder order = QueryOrder.Descending, QueryType qtype = QueryType.Date, ulong? tag = null)
     {
         var productContext = _context.ProductData;
+        var tagContext = _context.ProductTags;
         
         var now = DateTime.Now;
-        IQueryable<ProductData> filteredData;
+        IQueryable<ulong>? taggedProducts = tag != null ? tagContext.Where(x => x.TagId == tag).Select(x => x.ProductId) : null;
+        IQueryable<ProductData> filteredData = taggedProducts == null ? productContext.AsQueryable() : productContext.Where(x => taggedProducts.Contains(x.ProductId));
         if (string.IsNullOrEmpty(name))
-            filteredData = productContext.Where(x => x.Visible && x.ExpirationDate > now);
+            filteredData = filteredData.Where(x => x.Visible && x.ExpirationDate > now);
         else
-            filteredData = productContext.Where(x => EF.Functions.ILike(x.Name, name + "%") && x.Visible && x.ExpirationDate > now);
+            filteredData = filteredData.Where(x => EF.Functions.ILike(x.Name, name + "%") && x.Visible && x.ExpirationDate > now);
 
         if (order == QueryOrder.Random)
         {
@@ -68,6 +70,11 @@ public class ProductService : IProductService
         return product;
     }
 
+    public ulong GetOwner(ulong productId)
+    {
+        return _context.ProductData.First(x => x.ProductId == productId).OwnerId;
+    }
+
     public bool IsFollowed(ulong userId, ulong productId)
     {
         var userFollow = _context.UserFollow;
@@ -75,6 +82,33 @@ public class ProductService : IProductService
         var follow = userFollow.Find(userId, productId);
 
         return follow != null;
+    }
+
+    public IEnumerable<string> GetProductTags(ulong productId)
+    {
+        var productTags = _context.ProductTags;
+        var tagNames = _context.Tags;
+
+        var tags = productTags.Where(x => x.ProductId == productId).Select(x => x.TagId);
+
+        return tagNames.Where(x => tags.Contains(x.TagId)).Select(x => x.TagName);
+    }
+
+
+    public void AddTag(ulong productId, ulong tagId)
+    {
+        var productTags = _context.ProductTags;
+
+        productTags.Add(new ProductTags()
+        {
+            ProductId = productId,
+            TagId = tagId
+        });
+
+        if (_context.SaveChanges() != 1)
+        {
+            throw new Exception("Product already has this tag");
+        }
     }
 
     public void FollowProduct(ulong userId, ulong productId)

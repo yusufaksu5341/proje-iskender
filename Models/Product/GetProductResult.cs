@@ -14,4 +14,6 @@ public class GetProductResult
 
     [JsonPropertyName("details")] public JsonElement? Details { get; set; } = null;
     [JsonPropertyName("main-image")] public string? MainImage { get; set; } = null;
+    
+    [JsonPropertyName("tags")] public IEnumerable<string> Tags { get; set; } = null;
 }

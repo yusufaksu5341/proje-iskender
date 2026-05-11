@@ -14,7 +14,7 @@ namespace ProjeIskender.Controllers.Api;
 
 [Route("api/product")]
 [ApiController]
-// [Authentication]
+[Authentication]
 public class Product : ControllerBase
 {
     private readonly IProductService productService;
@@ -31,7 +31,8 @@ public class Product : ControllerBase
         [FromQuery, MaxLength(128)] string name = "", 
         [FromQuery] string order = "rand", 
         [FromQuery(Name = "order-by")] string orderBy = "date", 
-        [FromQuery] uint page = 0)
+        [FromQuery] uint page = 0,
+        [FromQuery] ulong? tag = null)
     {
         QueryOrder queryOrder;
         QueryType queryType;
@@ -67,7 +68,7 @@ public class Product : ControllerBase
         try
         {
             var prods = productService
-                .GetProducts(name, page, queryOrder, queryType)
+                .GetProducts(name, page, queryOrder, queryType, tag)
                 .Select(x => new SearchRespondBody()
             {
                 Date = x.CreationDate,
@@ -110,7 +111,8 @@ public class Product : ControllerBase
                 CurrentPrice = prod.CurrentPrice,
                 StartingPrice = prod.StartingPrice,
                 MainImage = prod.MainImage,
-                Details = prod.Details
+                Details = prod.Details,
+                Tags = productService.GetProductTags(prod.ProductId)
             });
         }
         catch (Exception e)
@@ -147,6 +149,29 @@ public class Product : ControllerBase
         var prodId = productService.CreateProduct(product);
         
         return Ok(prodId.ToString());
+    }
+    
+    [HttpPost("{productId}/tag/{tagId}")]
+    public IActionResult CreateProduct(
+        ulong productId,
+        ulong tagId
+    )
+    {
+        try
+        {
+            ulong userId = ((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+
+            if (productService.GetOwner(productId) != userId) 
+                return StatusCode(StatusCodes.Status403Forbidden);
+
+            productService.AddTag(productId, tagId);
+
+            return Ok();
+        }
+        catch
+        {
+            return StatusCode(StatusCodes.Status409Conflict);
+        }
     }
 
     [HttpGet("{productId}/image")]
