@@ -15,7 +15,7 @@ namespace ProjeIskender.Controllers.Api;
 
 [Route("api/product")]
 [ApiController]
-//[Authentication]
+[Authentication]
 public class Product : AuthorizedController
 {
     private readonly IProductService productService;
@@ -298,7 +298,7 @@ public class Product : AuthorizedController
     [HttpPost("{productId}/image")]
     public async Task<IActionResult> AddProductImage(ulong productId)
     {
-        //ulong userId = Jwt.UserID;
+        ulong userId = Jwt.UserID;
 
         ProductData prod;
         try
@@ -310,10 +310,10 @@ public class Product : AuthorizedController
             return BadRequest("Product id does not exist");
         }
 
-        /*if (prod.OwnerId != userId)
+        if (prod.OwnerId != userId)
         {
             return Forbid();
-        }*/
+        }
         
         MemoryStream ms = new MemoryStream();
         var fstream = Request.Body;
