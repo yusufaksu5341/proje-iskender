@@ -47,16 +47,23 @@ public class Account : ControllerBase
         {
             return BadRequest("Geçersiz NameType değeri!");
         }
-
-        var token = new JwtToken()
+        
+        try
         {
-            UserID = user.UserId,
-            UserRole = (byte)user.UserRole,
-            Expiration = DateTime.UtcNow.AddHours(1)
-        };
+            var token = new JwtToken()
+            {
+                UserID = user.UserId,
+                UserRole = (byte)user.UserRole,
+                Expiration = DateTime.UtcNow.AddHours(1)
+            };
 
-        var jwt = JwtToken.Serialize(token);
-        return Ok(jwt);
+            var jwt = JwtToken.Serialize(token);
+            return Ok(jwt);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Token oluşturulurken bir hata oluştu!");
+        }
     }
 
     [HttpPost("register")]
@@ -71,7 +78,7 @@ public class Account : ControllerBase
         {
             return BadRequest("Bu kullanıcı adı zaten kayıtlı!");
         }
-
+        
         var AddUser = userService.AddUser(new UserData()
         {
             UserMail = request.UserMail,
@@ -89,34 +96,34 @@ public class Account : ControllerBase
     }
 
     [Authentication]
-    [HttpGet("{userId?}")]
-    public IActionResult GetUser(ulong? userId)
+    [HttpGet]
+    public IActionResult GetUser()
     {
-        ulong resolvedUserId;
+        return GetUser(((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID);
+    }
 
-        if (userId == null)
-        {
-            resolvedUserId = (ulong)HttpContext.Items["UserID"]!;
-        }
-        else
-        {
-            resolvedUserId = userId.Value;
-        }
-
-        UserData? requestedUser = userService.GetUserById(resolvedUserId);
+    [Authentication]
+    [HttpGet("{userId}")]
+    public IActionResult GetUser(ulong userId)
+    {
+        UserData? requestedUser = userService.GetUserById(userId);
         if (requestedUser == null)
         {
             return NotFound("Kullanıcı bulunamadı!");
         }
 
-        return Ok(new UserData()
+        try
         {
-            UserId = requestedUser.UserId,
-            UserName = requestedUser.UserName,
-            UserMail = requestedUser.UserMail,
-            UserRole = requestedUser.UserRole,
-            UserPassword = null!,
-        });
+            return Ok(new UserResult()
+            {
+                UserId = requestedUser.UserId,
+                UserName = requestedUser.UserName
+            });
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost("{userId}/verify-email")]
@@ -128,17 +135,34 @@ public class Account : ControllerBase
             return NotFound("Kullanıcı bulunamadı!");
         }
 
-        var mailCode = userService.GenerateEmailVerification(user.UserMail);
-        return Ok(mailCode);
+        try
+        {
+            var mailCode = userService.GenerateEmailVerification(user.UserMail);
+            return Ok(mailCode);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, "Doğrulama kodu oluşturulurken bir hata oluştu!");
+        }
     }
 
     [Authentication]
     [HttpGet("search")]
     public IActionResult SearchUsers([FromQuery] string userName)
     {
-        var users = userService.SearchUsers(userName);
-        return Ok(users);
+        try
+        {
+            var users = userService.SearchUsers(userName);
+            return Ok(users.Select(u => new UserResult()
+            {
+                UserId = u.UserId,
+                UserName = u.UserName,
+            }));
+        }
+        catch (Exception e)
+        {
+            return NotFound();
+        }
     }
 
 }
-
