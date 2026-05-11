@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ProjeIskender.Attributes;
 using ProjeIskender.Models.Tag;
 using ProjeIskender.Services;
 
@@ -6,6 +7,7 @@ namespace ProjeIskender.Controllers.Api;
 
 [Route("api/tag")]
 [ApiController]
+[Authentication]
 public class Tag : ControllerBase
 {
     private readonly ITagService _tagService;
@@ -35,7 +37,8 @@ public class Tag : ControllerBase
         return Ok(_tagService.GetTagByName(name));
     }
 
-    [HttpPost("bt-name/{name}")]
+    [HttpPost("by-name/{name}")]
+    [Authentication(1)]
     public IActionResult Create(string name)
     {
         try
