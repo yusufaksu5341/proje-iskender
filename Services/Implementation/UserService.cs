@@ -19,37 +19,25 @@ public class UserService : IUserService
     public UserData GetUserById(ulong userId)
     {
         UserData? user = _context.UserData.Find(userId);
-        if (user == null)
-        {
-            throw new Exception("Kullanıcı bulunamadı");
-        }
-        return user;
+        return user!;
     }
     
     public UserData GetUserByName(string userName)
     {
         UserData? user = _context.UserData.FirstOrDefault(u => u.UserName == userName);
-        if (user == null)
-        {
-            throw new Exception("Kullanıcı bulunamadı");
-        }
-        return user;
+        return user!;
     }
 
     public UserData GetUserByEmail(string userEmail)
     {
         UserData? user = _context.UserData.FirstOrDefault(u => u.UserMail == userEmail);
-        if (user == null)
-        {
-            throw new Exception("Kullanıcı bulunamadı");
-        }
-        return user;
+        return user!;
     }
 
-    public IEnumerable<UserData> SearchUsers(string userName)
-    {
-        return _context.UserData.Where(u => EF.Functions.ILike(u.UserName, userName + "%")).ToList();
-    }
+ public IEnumerable<UserData> SearchUsers(string userName)
+{
+    return _context.UserData.Where(u => u.UserName.Contains(userName)).ToList();
+}
 
     public bool ValidateUser(ulong userId, string userPassword)
     {
@@ -95,18 +83,6 @@ public class UserService : IUserService
     {
         user.UserPassword = BCrypt.Net.BCrypt.HashPassword(user.UserPassword);
         _context.UserData.Add(user);
-        return _context.SaveChanges() > 0;
-    }
-
-    public bool UpdateUserPicture(ulong userId, string pictureUrl)
-    {
-        UserData? user = _context.UserData.Find(userId);
-        if (user == null)
-        {
-            return false;
-        }
-        user.PictureUrl = pictureUrl;
-        _context.UserData.Update(user);
         return _context.SaveChanges() > 0;
     }
 }
