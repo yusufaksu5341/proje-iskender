@@ -1,10 +1,33 @@
+using System.Text;
+using Microsoft.EntityFrameworkCore;
+using ProjeIskender.Context;
+using ProjeIskender.Middlewares;
+using ProjeIskender.Models.Account;
+using ProjeIskender.Services;
+using ProjeIskender.Services.Implementation;
+
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+#if !_TEST
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddJsonFile("config.json"); // config.json eklemeyi unutmayın!
+
+JwtToken.LoadKey(builder.Configuration["JwtKey"]!);
+if (!Directory.Exists("./resource"))
+{
+    Directory.CreateDirectory("resource");
+}
 
 // Add services to the container.
+builder.Services.AddDbContext<IskenderContext>(x => x.UseNpgsql(builder.Configuration["ConnectionString"]!));
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
-builder.Services.AddSession(o => o.IdleTimeout = TimeSpan.FromHours(8));
-builder.Services.AddHttpContextAccessor();
+
+// Custom services
+builder.Services.AddScoped<IUserService, UserService>(x => new UserService(x.GetService<IskenderContext>(), Encoding.ASCII.GetBytes("test-key")));
+builder.Services.AddScoped<IResourceService, ResourceService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var app = builder.Build();
 
@@ -19,11 +42,21 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
-app.UseSession();
-app.UseAuthorization();
+app.UseMiddleware<AuthenticationMiddleware>();
+app.UseMiddleware<AuthorizationMiddleware>();
+app.UseMiddleware<ContentAcceptMiddleware>();
 
 app.MapStaticAssets();
 
 app.MapControllers();
 
 app.Run();
+
+#else
+
+var tester = new ProjeIskender.Tester();
+
+tester.Init();
+tester.RunAll();
+
+#endif

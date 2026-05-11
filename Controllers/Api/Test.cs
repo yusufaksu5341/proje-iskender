@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using ProjeIskender.Attributes;
+using ProjeIskender.Models;
 
 namespace ProjeIskender.Controllers.Api
 {
@@ -8,10 +11,16 @@ namespace ProjeIskender.Controllers.Api
     public class Test : ControllerBase
     {
         [HttpGet]
-        [HttpGet("{ping}")]
-        public IActionResult Index(string ping = "pong") 
+        public IActionResult Index() 
         {
-            return Ok(ping);
+            return Ok("test");
+        }
+
+        [HttpPost("image")]
+        [ContentAccept("image/png")]
+        public IActionResult Image()
+        {
+            return Ok("Success!");
         }
     }
 }
