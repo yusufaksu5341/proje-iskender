@@ -18,6 +18,5 @@ public interface IUserService
     public bool VerifyEmail(string email, string mailCode);
 
     public bool AddUser(UserData user);
-
-    public bool UpdateUserPicture(ulong userId, string pictureUrl);
+    
 }
