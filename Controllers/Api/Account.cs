@@ -140,23 +140,5 @@ public class Account : ControllerBase
         return Ok(users);
     }
 
-    [Authentication]
-    [HttpPut("{userId}/picture")]
-    public IActionResult UploadProfilePicture(ulong userId, [FromBody] string pictureUrl) 
-    {
-        if(userId != (ulong)HttpContext.Items["UserID"]!)
-        {
-            return Forbid("Kendi profil resminizi güncelleyebilirsiniz!");
-        }
-
-        var profileUpdated = userService.UpdateUserPicture(userId, pictureUrl);
-        
-        if (!profileUpdated)
-        {
-            return BadRequest("Profil resmi güncellenirken bir hata oluştu!");
-        }
-        return Ok("Profil resmi başarıyla güncellendi!");
-    }
-
 }
 
