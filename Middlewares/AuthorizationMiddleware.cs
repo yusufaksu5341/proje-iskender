@@ -1,5 +1,6 @@
 using System.Net;
 using ProjeIskender.Models.Account;
+using ProjeIskender.Utils;
 
 namespace ProjeIskender.Middlewares;
 
@@ -28,7 +29,7 @@ public class AuthorizationMiddleware
             return;
         }
 
-        var token = (JwtToken)context.Items["Jwt-Token"]!;
+        var token = context.GetJwt();
 
         if (attr.Role != token.UserRole)
         {
