@@ -14,5 +14,4 @@ public class UserData
     [Column("user_mail"), MaxLength(64)] required public string UserMail { get; set; }
     [Column("user_password"), MaxLength(256)] required public string UserPassword { get; set; }
     [Column("user_role"), DefaultValue(0)] public UserRoles UserRole { get; set; } = 0;
-    [Column("picture_url"), MaxLength(256)] public string? PictureUrl { get; set; }
 }

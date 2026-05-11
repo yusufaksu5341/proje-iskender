@@ -136,16 +136,6 @@ public class TestUserService : IUserService
         return true;
     }
 
-    public bool UpdateUserPicture(ulong userId, string pictureUrl)
-    {
-        if (testData.TryGetValue(userId, out var user))
-        {
-            user.PictureUrl = pictureUrl;
-            return true;
-        }
-        return false;
-    }
-
     private static TestUserService testService = null!;
 
     [TestInit]
