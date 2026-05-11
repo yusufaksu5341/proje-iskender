@@ -15,18 +15,17 @@ public class Resource : ControllerBase
         this.resourceService = resourceService;
     }
         
-    [HttpGet("/{rid}")]
+    [HttpGet("{rid}")]
     public IActionResult GetResource(string rid)
     {
-        if (!resourceService.Exists(rid))
+        try
         {
-            return StatusCode((int)HttpStatusCode.NotFound);
+            var contentType = resourceService.GetContentType(rid);
+            return File(resourceService.Get(rid), contentType);
         }
-
-        /*
-         * NOT
-         * Buradaki Content-Type değişkeni ileride Servis'den okunacak!
-         */
-        return File(resourceService.Get(rid), "application/png");
+        catch
+        {
+            return NotFound();
+        }
     }
 }
