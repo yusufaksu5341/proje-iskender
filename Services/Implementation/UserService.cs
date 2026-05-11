@@ -9,9 +9,11 @@ namespace ProjeIskender.Services.Implementation;
 public class UserService : IUserService
 {
     private IskenderContext _context;
-    public UserService(IskenderContext context)
+    private readonly byte[] _emailKey;
+    public UserService(IskenderContext context, byte[] emailKey)
     {
         _context = context;
+        _emailKey = emailKey;
     }
     
     public UserData GetUserById(ulong userId)
