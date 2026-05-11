@@ -92,6 +92,13 @@ public class ResourceService : IResourceService
         return File.Exists($"resource/{name}");
     }
 
+    public string GetContentType(string name)
+    {
+        var resource = _context.Resource.First(x => x.ResourceUuid.ToString() == name);
+
+        return resource.ContentType;
+    }
+
     public FileStream Get(string name)
     {
         return File.OpenRead($"resource/{name}");

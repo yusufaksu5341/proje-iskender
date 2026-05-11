@@ -8,6 +8,8 @@ public interface IResourceService
     public bool CreateResourceByName(string name, Stream stream);
     public bool CreateResourceByName(string name, byte[] data);
 
+    public string GetContentType(string name);
+
     public bool Exists(string name);
 
     public FileStream Get(string name);
