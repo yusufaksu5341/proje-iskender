@@ -21,7 +21,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddControllers();
 
 // Custom services
-builder.Services.AddScoped<IUserService, TestUserService>(x => new TestUserService(Encoding.ASCII.GetBytes("test-key")));
+builder.Services.AddScoped<IUserService, UserService>(x => new UserService(x.GetService<IskenderContext>(), Encoding.ASCII.GetBytes("test-key")));
 builder.Services.AddScoped<IResourceService, ResourceService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ITagService, TagService>();
