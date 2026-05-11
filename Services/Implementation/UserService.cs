@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjeIskender.Context;
 using ProjeIskender.Models;
 using ProjeIskender.Models.Dto;
+using BCrypt.Net;
 
 namespace ProjeIskender.Services.Implementation;
 
@@ -55,7 +56,7 @@ public class UserService : IUserService
         {
             return false;
         }
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
 
     public bool ValidateUser(string userName, string userPassword)
@@ -65,7 +66,7 @@ public class UserService : IUserService
         {
             return false;
         }
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
 
     public bool ValidateUserByEmail(string email, string userPassword)
@@ -75,7 +76,7 @@ public class UserService : IUserService
         {
             return false;
         }
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
 
     public string GenerateEmailVerification(string email)
@@ -90,6 +91,7 @@ public class UserService : IUserService
 
     public bool AddUser(UserData user)
     {
+        user.UserPassword = BCrypt.Net.BCrypt.HashPassword(user.UserPassword);
         _context.UserData.Add(user);
         return _context.SaveChanges() > 0;
     }
