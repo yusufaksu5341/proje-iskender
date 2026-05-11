@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace ProjeIskender.Models.Dto;
@@ -7,8 +8,8 @@ namespace ProjeIskender.Models.Dto;
 [Keyless]
 public class ProductPrice
 {
-    [Column("bid_date")] public required DateTime BidDate { get; set; }
-    [Column("user_id")] public required ulong UserId { get; set; }
-    [Column("product_id")] public required ulong ProductId { get; set; }
-    [Column("price")] public required float Price { get; set; }
+    [JsonPropertyName("bid-date"), Column("bid_date")] public required DateTime BidDate { get; set; }
+    [JsonPropertyName("user-id"), Column("user_id")] public required ulong UserId { get; set; }
+    [JsonPropertyName("product-id"), Column("product_id")] public required ulong ProductId { get; set; }
+    [JsonPropertyName("price"), Column("price")] public required float Price { get; set; }
 }

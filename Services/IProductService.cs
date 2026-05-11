@@ -18,6 +18,7 @@ public interface IProductService
     
     public IEnumerable<float> GetProductPriceAll(ulong productId);
     public IEnumerable<ProductPrice> GetProductPricesHistory(ulong productId);
+    public int GetProductBidCount(ulong productId);
     public float GetProductPrice(ulong productId);
     
     public IEnumerable<float> GetProductPrices(IEnumerable<ulong> products);

@@ -149,6 +149,13 @@ public class ProductService : IProductService
         return prices.Where(x => x.ProductId == productId);
     }
 
+    public int GetProductBidCount(ulong productId)
+    {
+        var prices = _context.ProductPrice;
+
+        return prices.Count(x => x.ProductId == productId);
+    }
+
     public float GetProductPrice(ulong productId)
     {
         var products = _context.ProductData;
