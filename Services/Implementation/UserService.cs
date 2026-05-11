@@ -19,33 +19,24 @@ public class UserService : IUserService
     public UserData GetUserById(ulong userId)
     {
         UserData? user = _context.UserData.Find(userId);
-        return user;
+        return user!;
     }
     
     public UserData GetUserByName(string userName)
     {
         UserData? user = _context.UserData.FirstOrDefault(u => u.UserName == userName);
-        return user;
+        return user!;
     }
 
     public UserData GetUserByEmail(string userEmail)
     {
         UserData? user = _context.UserData.FirstOrDefault(u => u.UserMail == userEmail);
-        return user;
+        return user!;
     }
 
  public IEnumerable<UserData> SearchUsers(string userName)
 {
-    UserData[] users = _context.UserData
-        .Where(u => u.UserName.Contains(userName))
-        .ToArray();
-
-    foreach (var user in users)
-    {
-        user.UserPassword = null!;
-    }
-
-    return users;
+    return _context.UserData.Where(u => u.UserName.Contains(userName)).ToList();
 }
 
     public bool ValidateUser(ulong userId, string userPassword)
