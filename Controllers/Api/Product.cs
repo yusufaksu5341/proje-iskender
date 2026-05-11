@@ -278,6 +278,21 @@ public class Product : ControllerBase
             return NotFound();
         }
     }
+    
+    [HttpGet("{productId}/bid/count")]
+    public IActionResult GetBidsCount(ulong productId)
+    {
+        return Ok(productService.GetProductBidCount(productId));
+    }
+
+    [HttpGet("{productId}/bids")]
+    public IActionResult GetAllBids(ulong productId)
+    {
+        return Ok(new AllBidsResult()
+        {
+            Prices = productService.GetProductPricesHistory(productId)
+        });
+    }
 
     [HttpPost("{productId}/image")]
     public IActionResult AddProductImage(ulong productId)
