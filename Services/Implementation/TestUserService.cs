@@ -4,6 +4,7 @@ using ProjeIskender.Services;
 using ProjeIskender.Models.Dto;
 using System.Text;
 using ProjeIskender.Models;
+using BCrypt.Net;
 
 namespace ProjeIskender.Services.Implementation;
 
@@ -82,7 +83,7 @@ public class TestUserService : IUserService
         var user = GetUserById(userId);
         if (user == null)
             return false;
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
     
     public bool ValidateUser(string userName, string userPassword)
@@ -90,7 +91,7 @@ public class TestUserService : IUserService
         var user = GetUserByName(userName);
         if (user == null)
             return false;
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
     
     public bool ValidateUserByEmail(string email, string userPassword)
@@ -98,7 +99,7 @@ public class TestUserService : IUserService
         var user = GetUserByEmail(email);
         if (user == null)
             return false;
-        return user.UserPassword == userPassword;
+        return BCrypt.Net.BCrypt.Verify(userPassword, user.UserPassword);
     }
 
     public string GenerateEmailVerification(string email)
@@ -129,6 +130,7 @@ public class TestUserService : IUserService
         
         ulong id = lastId++;
         user.UserId = id;
+        user.UserPassword = BCrypt.Net.BCrypt.HashPassword(user.UserPassword);
         testData.Add(id, user);
 
         return true;
