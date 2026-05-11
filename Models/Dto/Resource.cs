@@ -6,10 +6,10 @@ using Microsoft.EntityFrameworkCore;
 namespace ProjeIskender.Models.Dto;
 
 [Table("resource_tb")]
-[PrimaryKey("ResourceName")]
+[PrimaryKey("ResourceUuid")]
 public class Resource
 {
-    [Column("resource_name"), MaxLength(128)] public required string ResourceName { get; set; }
+    [Column("resource_uuid"), MaxLength(128), DatabaseGenerated(DatabaseGeneratedOption.Identity)] public Guid ResourceUuid { get; set; }
     [Column("content_type"), MaxLength(64)] public required string ContentType { get; set; }
     [Column("visible"), DefaultValue(true)] public bool Visible { get; set; }
 }

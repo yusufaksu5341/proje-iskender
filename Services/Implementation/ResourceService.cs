@@ -22,30 +22,26 @@ public class ResourceService : IResourceService
         
         type = whiteList.First(x => x.ContentType == contentType);
 
-        var guid = Guid.NewGuid();
-
-        for (int x = 0; x < 10; x++)
+        var newResource = new Resource()
         {
-            resource.Add(new Resource()
-            {
-                ContentType = type.ContentType,
-                ResourceName = guid.ToString()
-            });
-            int entries = _context.SaveChanges();
+            ContentType = type.ContentType,
+            Visible = true
+        };
+        resource.Add(newResource);
+        int entries = _context.SaveChanges();
 
-            if (entries == 1)
+        if (entries == 1)
+        {
+            var path = $"resource/{newResource.ResourceUuid}";
+            using (FileStream fileStream = System.IO.File.OpenWrite(path))
             {
-                var path = $"resource/{guid}";
-                using (FileStream fileStream = System.IO.File.OpenWrite(path))
-                {
-                    stream.CopyTo(fileStream);
-                }
-
-                return path;
+                stream.CopyTo(fileStream);
             }
-        }
 
-        throw new Exception("Cannot generate unique GUID");
+            return path;
+        }
+        
+        throw new Exception("Cannot generate unique UUID");
     }
 
     public string CreateResource(string contentType, byte[] data)

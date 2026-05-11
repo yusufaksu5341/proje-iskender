@@ -13,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("config.json"); // config.json eklemeyi unutmayın!
 
 JwtToken.LoadKey(builder.Configuration["JwtKey"]!);
-
+if (!Directory.Exists("./resource"))
+{
+    Directory.CreateDirectory("resource");
+}
 
 // Add services to the container.
 builder.Services.AddDbContext<IskenderContext>(x => x.UseNpgsql(builder.Configuration["ConnectionString"]!));
