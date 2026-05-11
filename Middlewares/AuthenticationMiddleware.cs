@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using ProjeIskender.Attributes;
 using ProjeIskender.Models.Account;
+using ProjeIskender.Utils;
 
 namespace ProjeIskender.Middlewares;
 
@@ -50,7 +51,7 @@ public class AuthenticationMiddleware
             return;
         }
         
-        context.Items.Add("Jwt-Token", JwtToken.Deserialize(subStr));
+        context.SetJwt(JwtToken.Deserialize(subStr));
         await next(context);
     }
 }

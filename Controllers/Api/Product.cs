@@ -9,13 +9,14 @@ using ProjeIskender.Models.Dto;
 using ProjeIskender.Models.Exceptions;
 using ProjeIskender.Models.Product;
 using ProjeIskender.Services;
+using ProjeIskender.Utils;
 
 namespace ProjeIskender.Controllers.Api;
 
 [Route("api/product")]
 [ApiController]
 [Authentication]
-public class Product : ControllerBase
+public class Product : AuthorizedController
 {
     private readonly IProductService productService;
     private readonly IResourceService resourceService;
@@ -93,7 +94,7 @@ public class Product : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetProduct(ulong id)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         try
         {
             var prod = productService.GetProduct(id);
@@ -132,7 +133,7 @@ public class Product : ControllerBase
             return BadRequest("Teklif 1 aydan uzun olamaz");
         }
 
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         ProductData product = new ProductData()
         {
             Name = createRequest.Name,
@@ -159,7 +160,7 @@ public class Product : ControllerBase
     {
         try
         {
-            ulong userId = ((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+            ulong userId = Jwt.UserID;
 
             if (productService.GetOwner(productId) != userId) 
                 return StatusCode(StatusCodes.Status403Forbidden);
@@ -177,7 +178,7 @@ public class Product : ControllerBase
     [HttpGet("{productId}/image")]
     public IActionResult GetProductImages(ulong productId)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         try
         {
             var prod = productService.GetProduct(productId);
@@ -201,7 +202,7 @@ public class Product : ControllerBase
     [HttpGet("{productId}/follow")]
     public IActionResult GetFollow(ulong productId)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         try
         {
             var prod = productService.GetProduct(productId);
@@ -219,7 +220,7 @@ public class Product : ControllerBase
     [HttpPost("{productId}/follow")]
     public IActionResult Follow(ulong productId)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         try
         {
             var prod = productService.GetProduct(productId);
@@ -239,7 +240,7 @@ public class Product : ControllerBase
     [HttpPost("{productId}/bid")]
     public IActionResult BidOnProduct(ulong productId, [FromQuery] float price)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
         try
         {
             var prod = productService.GetProduct(productId);
@@ -297,7 +298,7 @@ public class Product : ControllerBase
     [HttpPost("{productId}/image")]
     public IActionResult AddProductImage(ulong productId)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
 
         ProductData prod;
         try
@@ -333,7 +334,7 @@ public class Product : ControllerBase
     [HttpPut("{productId}/image/resource/{imagePath}")]
     public IActionResult SetMainImage(ulong productId, string imagePath)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
 
         try
         {
@@ -366,7 +367,7 @@ public class Product : ControllerBase
     [HttpPost("{productId}/comment")]
     public IActionResult AddComment(ulong productId, [FromBody] SendCommentRequest comment)
     {
-        ulong userId = (ulong)((JwtToken)HttpContext.Items["Jwt-Token"]!).UserID;
+        ulong userId = Jwt.UserID;
 
         try
         {
