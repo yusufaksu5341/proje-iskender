@@ -10,9 +10,17 @@
 
 ## İçindekiler
 - [Proje Hakkında](#proje-hakkında)
+- [Özellikler](#özellikler)
+- [Kullanılan Teknolojiler](#kullanılan-teknolojiler)
 - [Kurulum](#kurulum)
 - [Derleme](#derleme)
-
+- [Sistem Mimarisi](#sistem-mimarisi)
+- [API Mimarisi](#api-mimarisi)
+- [Özelleştirilmiş JWT Doğrulama Sistemi](#özelleştirilmiş-jwt-doğrulama-sistemi)
+- [Middleware](#middleware)
+- [Test Süreçleri](#test-süreçleri)
+- [Medya Yönetimi](#medya-yönetimi)
+- [Geliştirici Ekip](#geliştirici-ekibi)
 
 
 ## Proje Hakkında
@@ -62,7 +70,7 @@ gibi ileri seviye yazılım mimarileri kullanılmıştır.
 - Resource yönetim sistemi
 - Sunucu taraflı medya saklama
 
-###  Güvenlik
+### Güvenlik
 - Sıfırdan geliştirilmiş JWT altyapısı
 - Custom Authentication Middleware
 - Custom Authorization sistemi
@@ -100,7 +108,7 @@ cd proje-iskender
 Postgre kurduktan sonra yeni bir veritabanı oluşturmak için:
 
 ```sql
-CREATE DATABASE iskender;
+CREATE DATABASE database-name;
 ```
 
 ---
@@ -143,8 +151,6 @@ Publish işlemi:
 ```bash
 dotnet publish -c Release
 ```
-
-## 
 
 ## Sistem Mimarisi
 
