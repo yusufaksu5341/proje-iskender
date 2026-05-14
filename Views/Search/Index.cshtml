@@ -1,0 +1,153 @@
+@model List<ProjeIskender.Models.IlanModel>
+@{
+    ViewData["Title"] = "Arama — İskender";
+    string q        = ViewBag.Q        ?? "";
+    string kategori = ViewBag.Kategori ?? "";
+    string sehir    = ViewBag.Sehir    ?? "";
+    string tur      = ViewBag.Tur      ?? "";
+    string siralama = ViewBag.Siralama ?? "";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row g-4">
+
+        <!-- Filtreler (sol panel) -->
+        <div class="col-12 col-lg-3">
+            <form method="get" action="/arama" class="filter-panel">
+                <input type="hidden" name="q" value="@q" />
+
+                <div class="filter-section">
+                    <div class="filter-title">İlan Türü</div>
+                    <div class="filter-pills">
+                        <label class="filter-pill @(tur == "" ? "active" : "")">
+                            <input type="radio" name="tur" value="" checked="@(tur == "" ? (object)"checked" : null)" hidden> Tümü
+                        </label>
+                        <label class="filter-pill @(tur == "artirma" ? "active" : "")">
+                            <input type="radio" name="tur" value="artirma" checked="@(tur == "artirma" ? (object)"checked" : null)" hidden> Açık Artırma
+                        </label>
+                        <label class="filter-pill @(tur == "sabit" ? "active" : "")">
+                            <input type="radio" name="tur" value="sabit" checked="@(tur == "sabit" ? (object)"checked" : null)" hidden> Sabit Fiyat
+                        </label>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">Kategori</div>
+                    <select name="kategori" class="fire-select">
+                        <option value="">Tüm Kategoriler</option>
+                        @foreach (var k in new[]{"Oyun & Konsol","Telefon & Tablet","Bilgisayar","Fotoğraf","Müzik Aletleri","Giyim","Ev & Yaşam","Araç & Aksesuar","Saat & Mücevher","Kitap & Koleksiyon","Diğer"})
+                        {
+                            <option value="@k" selected="@(kategori == k ? (object)"selected" : null)">@k</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">Şehir</div>
+                    <select name="sehir" class="fire-select">
+                        <option value="">Tüm Şehirler</option>
+                        @foreach (var il in ProjeIskender.Helpers.Iller.Tumu)
+                        {
+                            <option value="@il" selected="@(sehir == il ? (object)"selected" : null)">@il</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-section">
+                    <div class="filter-title">Fiyat Aralığı</div>
+                    <div class="d-flex gap-2">
+                        <input class="fire-input" type="number" name="minFiyat" placeholder="Min ₺"
+                               value="@(ViewBag.MinFiyat)" style="width:50%" />
+                        <input class="fire-input" type="number" name="maxFiyat" placeholder="Max ₺"
+                               value="@(ViewBag.MaxFiyat)" style="width:50%" />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-fire w-100 mt-3">Filtrele</button>
+                <a href="/arama?q=@q" class="btn-fire-outline w-100 mt-2 d-block text-center">Filtreleri Temizle</a>
+            </form>
+        </div>
+
+        <!-- Sonuçlar -->
+        <div class="col-12 col-lg-9">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    @if (!string.IsNullOrEmpty(q))
+                    {
+                        <span style="color:var(--text-muted)">"<strong style="color:var(--fire-orange)">@q</strong>" için</span>
+                    }
+                    <span style="color:var(--text-muted)"> @Model.Count sonuç</span>
+                </div>
+                <form method="get" action="/arama" class="d-flex gap-2 align-items-center">
+                    <input type="hidden" name="q" value="@q" />
+                    <input type="hidden" name="kategori" value="@kategori" />
+                    <input type="hidden" name="sehir" value="@sehir" />
+                    <input type="hidden" name="tur" value="@tur" />
+                    <input type="hidden" name="minFiyat" value="@ViewBag.MinFiyat" />
+                    <input type="hidden" name="maxFiyat" value="@ViewBag.MaxFiyat" />
+                    <select name="siralama" class="fire-select" style="width:auto" onchange="this.form.submit()">
+                        <option value="" selected="@(siralama == "" ? (object)"selected" : null)">En Yeni</option>
+                        <option value="fiyat-artan" selected="@(siralama == "fiyat-artan" ? (object)"selected" : null)">Fiyat: Düşükten Yükseğe</option>
+                        <option value="fiyat-azalan" selected="@(siralama == "fiyat-azalan" ? (object)"selected" : null)">Fiyat: Yüksekten Düşüğe</option>
+                        <option value="teklif" selected="@(siralama == "teklif" ? (object)"selected" : null)">En Çok Teklif</option>
+                    </select>
+                </form>
+            </div>
+
+            @if (!Model.Any())
+            {
+                <div class="empty-state">
+                    <div class="empty-text">Sonuç bulunamadı.</div>
+                    <a href="/arama" class="btn-fire mt-3">Filtreleri Temizle</a>
+                </div>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var ilan in Model)
+                    {
+                        <div class="col-12 col-sm-6 col-xl-4">
+                            <a href="/ilan/@ilan.Id" style="text-decoration:none;display:block;">
+                                <div class="listing-card">
+                                    <div class="card-img-wrap">
+                                        @if (ilan.MainImage != null)
+                                        {
+                                            <img src="/@ilan.MainImage" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="@ilan.Baslik">
+                                        }
+                                        <span class="listing-badge badge-@ilan.Badge">
+                                            @(ilan.Badge == "hot" ? "Popüler" : ilan.Badge == "new" ? "Yeni" : "Bitiyor")
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="listing-title">@ilan.Baslik</div>
+                                        <div class="listing-location">
+                                            <span>@ilan.Sehir</span>
+                                            <span>@ilan.Kategori</span>
+                                        </div>
+                                        <div class="bid-section">
+                                            <div>
+                                                <div class="bid-label">@(ilan.Durum == "Artırma" ? "En Yüksek Teklif" : "Sabit Fiyat")</div>
+                                                <div class="bid-amount">₺@ilan.MevcutTeklif.ToString("N0")</div>
+                                            </div>
+                                            <div class="bid-count">@ilan.TeklifSayisi teklif</div>
+                                        </div>
+                                        @if (ilan.Durum == "Artırma")
+                                        {
+                                            <div class="countdown-bar">
+                                                <div class="countdown-fill" style="width:@(Math.Max(5, Math.Min(100, ilan.KalanSaniye * 100 / 86400)))%"></div>
+                                            </div>
+                                            <div class="countdown-text">
+                                                <span>Kalan süre</span>
+                                                <span class="countdown-timer" data-ends="@ilan.KalanSaniye">--</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

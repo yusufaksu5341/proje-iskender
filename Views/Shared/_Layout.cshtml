@@ -12,29 +12,25 @@
     <nav class="fire-navbar">
         <div class="container-fluid d-flex align-items-center" style="gap:1rem; min-height:60px;">
 
-            <a class="navbar-brand-fire" asp-controller="Home" asp-action="Index">
-                İskender
-            </a>
+            <a class="navbar-brand-fire" asp-controller="Home" asp-action="Index">İskender</a>
 
-            <div class="nav-search-wrap d-none d-md-block">
+            <form class="nav-search-wrap d-none d-md-block" method="get" action="/arama">
                 <div class="nav-search">
-                    <input type="text" placeholder="Ürün, kategori veya satıcı ara..." />
-                    <button>Ara</button>
+                    <input type="text" name="q" placeholder="Ürün veya kategori ara..."
+                           value="@(Context.Request.Query["q"])" />
+                    <button type="submit">Ara</button>
                 </div>
-            </div>
+            </form>
 
             <ul class="navbar-nav flex-row d-none d-lg-flex ms-2" style="gap:.2rem;">
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">İlanlar</a>
+                    <a class="nav-link" href="/arama">İlanlar</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Açık Artırma</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Satıcılar</a>
+                    <a class="nav-link" href="/arama?tur=artirma">Açık Artırma</a>
                 </li>
             </ul>
 
@@ -47,9 +43,16 @@
                 @if (!string.IsNullOrEmpty(sessionUser))
                 {
                     <a asp-controller="Listing" asp-action="Add" class="btn-nav-register d-none d-sm-inline-block">+ İlan Ver</a>
-                    <div class="nav-user-pill d-none d-sm-flex">
+                    <div class="nav-user-pill d-none d-sm-flex" style="position:relative;">
                         <span class="nav-user-at">@@</span>
                         <span class="nav-user-name">@sessionUser</span>
+                        <div class="nav-user-dropdown">
+                            <a href="/hesap/ilanlarim">İlanlarım</a>
+                            <a href="/hesap/tekliflerim">Tekliflerim</a>
+                            <a href="/hesap/favorilerim">Favorilerim</a>
+                            <a href="/hesap/alinanlarim">Alınanlarım</a>
+                            <a asp-controller="Account" asp-action="Logout" class="nav-dropdown-logout">Çıkış Yap</a>
+                        </div>
                         <a asp-controller="Account" asp-action="Logout" class="nav-user-logout" title="Çıkış Yap">⏻</a>
                     </div>
                 }
@@ -59,47 +62,55 @@
                     <a asp-controller="Account" asp-action="Register" class="btn-nav-register d-none d-sm-inline-block">Kayıt Ol</a>
                 }
                 <button class="hamburger d-lg-none" id="menuToggle" aria-label="Menü">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </div>
 
         <div class="mobile-menu" id="mobileMenu">
             <div class="mobile-search">
-                <div class="nav-search">
-                    <input type="text" placeholder="Ürün ara..." />
-                    <button>Ara</button>
-                </div>
+                <form method="get" action="/arama">
+                    <div class="nav-search">
+                        <input type="text" name="q" placeholder="Ürün ara..." />
+                        <button type="submit">Ara</button>
+                    </div>
+                </form>
             </div>
             <ul class="mobile-nav-links">
                 <li><a asp-controller="Home" asp-action="Index">Ana Sayfa</a></li>
-                <li><a href="#">İlanlar</a></li>
-                <li><a href="#">Açık Artırma</a></li>
-                <li><a href="#">Satıcılar</a></li>
+                <li><a href="/arama">İlanlar</a></li>
+                <li><a href="/arama?tur=artirma">Açık Artırma</a></li>
+                @if (!string.IsNullOrEmpty(sessionUser))
+                {
+                    <li><a href="/hesap/ilanlarim">İlanlarım</a></li>
+                    <li><a href="/hesap/tekliflerim">Tekliflerim</a></li>
+                    <li><a href="/hesap/favorilerim">Favorilerim</a></li>
+                    <li><a href="/hesap/alinanlarim">Alınanlarım</a></li>
+                    <li><a asp-controller="Listing" asp-action="Add">+ İlan Ver</a></li>
+                    <li><a asp-controller="Account" asp-action="Logout">Çıkış Yap</a></li>
+                }
+                else
+                {
+                    <li><a asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                    <li><a asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
+                }
             </ul>
-            <div class="mobile-auth">
-                <a asp-controller="Account" asp-action="Login" class="btn-nav-login">Giriş Yap</a>
-                <a asp-controller="Account" asp-action="Register" class="btn-nav-register">Kayıt Ol</a>
-            </div>
         </div>
     </nav>
 
     <div class="category-strip">
         <div class="container-fluid">
             <ul>
-                <li><a href="#">Oyun & Konsol</a></li>
-                <li><a href="#">Telefon & Tablet</a></li>
-                <li><a href="#">Bilgisayar</a></li>
-                <li><a href="#">Fotoğraf</a></li>
-                <li><a href="#">Müzik</a></li>
-                <li><a href="#">Giyim</a></li>
-                <li><a href="#">Ev & Yaşam</a></li>
-                <li><a href="#">Araç & Aksesuar</a></li>
-                <li><a href="#">Saat & Mücevher</a></li>
-                <li><a href="#">Kitap & Koleksiyon</a></li>
-                <li><a href="#" style="color:var(--fire-orange);">Tüm Kategoriler</a></li>
+                @foreach (var (k, slug) in new[]{
+                    ("Oyun & Konsol","Oyun & Konsol"),("Telefon & Tablet","Telefon & Tablet"),
+                    ("Bilgisayar","Bilgisayar"),("Fotoğraf","Fotoğraf"),("Müzik","Müzik Aletleri"),
+                    ("Giyim","Giyim"),("Ev & Yaşam","Ev & Yaşam"),("Araç & Aksesuar","Araç & Aksesuar"),
+                    ("Saat & Mücevher","Saat & Mücevher"),("Kitap & Koleksiyon","Kitap & Koleksiyon")
+                })
+                {
+                    <li><a href="/arama?kategori=@Uri.EscapeDataString(slug)">@k</a></li>
+                }
+                <li><a href="/arama" style="color:var(--fire-orange);">Tüm Kategoriler</a></li>
             </ul>
         </div>
     </div>
@@ -113,26 +124,26 @@
             <div class="row g-4">
                 <div class="col-12 col-md-4">
                     <div class="footer-brand">İskender</div>
-                    <p class="footer-desc">
-                        Türkiye'nin en güvenilir 2. el alım-satım ve açık artırma platformu.
-                    </p>
+                    <p class="footer-desc">Türkiye'nin en güvenilir 2. el alım-satım ve açık artırma platformu.</p>
                 </div>
                 <div class="col-6 col-md-2">
                     <div class="footer-title">Keşfet</div>
                     <ul class="footer-links">
-                        <li><a href="#">Tüm İlanlar</a></li>
-                        <li><a href="#">Aktif Artırmalar</a></li>
-                        <li><a href="#">Çok Satanlar</a></li>
-                        <li><a href="#">Yeni Eklenenler</a></li>
+                        <li><a href="/arama">Tüm İlanlar</a></li>
+                        <li><a href="/arama?tur=artirma">Aktif Artırmalar</a></li>
+                        <li><a href="/arama?siralama=teklif">Çok Teklif Alanlar</a></li>
+                        <li><a href="/arama?siralama=">Yeni Eklenenler</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-2">
                     <div class="footer-title">Hesap</div>
                     <ul class="footer-links">
-                        <li><a href="#">Giriş Yap</a></li>
-                        <li><a href="#">Kayıt Ol</a></li>
-                        <li><a href="#">İlanlarım</a></li>
-                        <li><a href="#">Tekliflerim</a></li>
+                        <li><a asp-controller="Account" asp-action="Login">Giriş Yap</a></li>
+                        <li><a asp-controller="Account" asp-action="Register">Kayıt Ol</a></li>
+                        <li><a href="/hesap/ilanlarim">İlanlarım</a></li>
+                        <li><a href="/hesap/tekliflerim">Tekliflerim</a></li>
+                        <li><a href="/hesap/favorilerim">Favorilerim</a></li>
+                        <li><a href="/hesap/alinanlarim">Alınanlarım</a></li>
                     </ul>
                 </div>
                 <div class="col-6 col-md-2">
@@ -152,7 +163,6 @@
                     </ul>
                 </div>
             </div>
-           
         </div>
     </footer>
 

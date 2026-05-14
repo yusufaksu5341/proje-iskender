@@ -1,0 +1,81 @@
+@model List<ProjeIskender.Models.BidViewModel>
+@{
+    ViewData["Title"] = "Tekliflerim — İskender";
+}
+
+<div class="container-fluid mt-4">
+    <h2 style="color:var(--fire-orange);font-weight:700;margin-bottom:1.5rem;">Tekliflerim</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-text">Henüz hiç teklif vermediniz.</div>
+            <a asp-controller="Home" asp-action="Index" class="btn-fire mt-3">İlanlara Gözat</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="ilan-spec-table w-100">
+                <thead>
+                    <tr style="color:var(--fire-orange);">
+                        <th style="padding:.75rem;">İlan</th>
+                        <th style="padding:.75rem;">Teklifim</th>
+                        <th style="padding:.75rem;">Mevcut Fiyat</th>
+                        <th style="padding:.75rem;">Durum</th>
+                        <th style="padding:.75rem;"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        var ilan = item.Ilan;
+                        bool isHighest = ilan != null && (decimal)item.BidPrice >= ilan.MevcutTeklif;
+                        bool expired   = ilan?.KalanSaniye <= 0;
+                        <tr>
+                            <td style="padding:.75rem;">
+                                @if (ilan != null)
+                                {
+                                    <a href="/ilan/@ilan.Id" style="color:var(--text-primary)">@ilan.Baslik</a>
+                                }
+                            </td>
+                            <td style="padding:.75rem;color:var(--fire-gold);font-weight:700;">
+                                ₺@item.BidPrice.ToString("N0")
+                            </td>
+                            <td style="padding:.75rem;">
+                                @if (ilan != null)
+                                {
+                                    <span>₺@ilan.MevcutTeklif.ToString("N0")</span>
+                                }
+                            </td>
+                            <td style="padding:.75rem;">
+                                @if (expired && isHighest)
+                                {
+                                    <span style="color:#4caf50;font-weight:700;">Kazandı</span>
+                                }
+                                else if (expired && !isHighest)
+                                {
+                                    <span style="color:#f44336;font-weight:700;">Kaybetti</span>
+                                }
+                                else if (isHighest)
+                                {
+                                    <span style="color:#4caf50;font-weight:700;">Önde</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#f44336;font-weight:700;">Geride</span>
+                                }
+                            </td>
+                            <td style="padding:.75rem;">
+                                @if (ilan != null)
+                                {
+                                    <a href="/ilan/@ilan.Id" class="btn-fire-outline" style="padding:.3rem .8rem;font-size:.85rem;">Görüntüle</a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -3,6 +3,34 @@
     Layout = "_AuthLayout";
 }
 
+<div class="legal-modal-backdrop" id="termsModal">
+    <div class="legal-modal">
+        <div class="legal-modal-header">
+            <span class="legal-modal-title">Kullanım Şartları</span>
+            <button type="button" class="legal-modal-close" id="termsClose">✕</button>
+        </div>
+        <div class="legal-modal-body">
+            @for (int i = 0; i < 20; i++) {
+                <p>tüm verilerini satıcaz</p>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="legal-modal-backdrop" id="privacyModal">
+    <div class="legal-modal">
+        <div class="legal-modal-header">
+            <span class="legal-modal-title">Gizlilik Politikası</span>
+            <button type="button" class="legal-modal-close" id="privacyClose">✕</button>
+        </div>
+        <div class="legal-modal-body">
+            @for (int i = 0; i < 20; i++) {
+                <p>tüm verilerini satıcaz</p>
+            }
+        </div>
+    </div>
+</div>
+
 <div class="auth-page">
     <div class="auth-embers">
         <div class="auth-ember"></div>
@@ -22,11 +50,12 @@
             <div class="auth-alert">@ViewBag.Error</div>
         }
 
-        <form class="auth-form" method="post" asp-controller="Account" asp-action="Register">
+        <form class="auth-form" method="post" asp-controller="Account" asp-action="Register" id="registerForm" novalidate>
             <div class="auth-field">
                 <label class="auth-label" for="email">E-posta</label>
                 <input class="auth-input" type="email" id="email" name="email"
                        autocomplete="email" required />
+                <div class="auth-field-error" id="emailErr">Geçerli bir e-posta adresi girin.</div>
             </div>
 
             <div class="auth-field">
@@ -36,6 +65,7 @@
                     <input class="auth-input has-prefix" type="text" id="username" name="username"
                            autocomplete="username" required />
                 </div>
+                <div class="auth-field-error" id="usernameErr">Kullanıcı adı en az 3 karakter olmalı.</div>
             </div>
 
             <div class="auth-field">
@@ -54,6 +84,7 @@
                     <div class="pwd-bar"><div class="pwd-fill" id="pwdFill"></div></div>
                     <span class="pwd-label" id="pwdLabel">Şifre gücü</span>
                 </div>
+                <div class="auth-field-error" id="pwdErr">Şifre en az 8 karakter olmalı.</div>
             </div>
 
             <div class="auth-field">
@@ -68,30 +99,22 @@
                         </svg>
                     </button>
                 </div>
+                <div class="auth-field-error" id="confirmErr">Şifreler uyuşmuyor.</div>
             </div>
 
             <div class="auth-terms">
                 <label class="auth-check-wrap">
-                    <input type="checkbox" name="terms" required />
+                    <input type="checkbox" name="terms" id="termsCheck" required />
                     <span class="auth-checkmark"></span>
                     <span>
-                        <a href="#" class="auth-link">Kullanım Şartları</a> ve
-                        <a href="#" class="auth-link">Gizlilik Politikası</a>'nı kabul ediyorum.
+                        <a class="auth-link" id="termsLink">Kullanım Şartları</a> ve
+                        <a class="auth-link" id="privacyLink">Gizlilik Politikası</a>'nı kabul ediyorum.
                     </span>
                 </label>
             </div>
 
             <button type="submit" class="btn-fire w-100 auth-submit">Hesap Oluştur</button>
         </form>
-
-        <div class="auth-divider"><span>veya</span></div>
-
-        <div class="auth-socials">
-            <button class="auth-social-btn" type="button">
-                <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M5.266 9.765A7.077 7.077 0 0 1 12 4.909c1.69 0 3.218.6 4.418 1.582L19.91 3C17.782 1.145 15.055 0 12 0 7.27 0 3.198 2.698 1.24 6.65l4.026 3.115z"/><path fill="#34A853" d="M16.04 18.013c-1.09.703-2.474 1.078-4.04 1.078a7.077 7.077 0 0 1-6.723-4.823l-4.04 3.067A11.965 11.965 0 0 0 12 24c2.933 0 5.735-1.043 7.834-3l-3.793-2.987z"/><path fill="#4A90E2" d="M19.834 21c2.195-2.048 3.62-5.096 3.62-9 0-.71-.109-1.473-.272-2.182H12v4.637h6.436c-.317 1.559-1.17 2.766-2.395 3.558L19.834 21z"/><path fill="#FBBC05" d="M5.277 14.268A7.12 7.12 0 0 1 4.909 12c0-.782.125-1.533.357-2.235L1.24 6.65A11.934 11.934 0 0 0 0 12c0 1.92.445 3.73 1.237 5.335l4.04-3.067z"/></svg>
-                Google ile Kayıt
-            </button>
-        </div>
 
         <div class="auth-switch">
             Zaten hesabın var mı?
@@ -102,7 +125,6 @@
 
 @section Scripts {
 <script>
-    // Şifre görünürlük toggle
     document.getElementById('togglePwd')?.addEventListener('click', function() {
         const pwd = document.getElementById('password');
         pwd.type = pwd.type === 'password' ? 'text' : 'password';
@@ -114,31 +136,134 @@
         this.classList.toggle('active');
     });
 
-    // Şifre gücü göstergesi
-    const pwdInput = document.getElementById('password');
-    const pwdFill  = document.getElementById('pwdFill');
-    const pwdLabel = document.getElementById('pwdLabel');
+    const pwdInput   = document.getElementById('password');
+    const pwdConfirm = document.getElementById('passwordConfirm');
+    const pwdFill    = document.getElementById('pwdFill');
+    const pwdLabel   = document.getElementById('pwdLabel');
+    const emailInput = document.getElementById('email');
+    const usernameInput = document.getElementById('username');
 
-    pwdInput?.addEventListener('input', function() {
-        const val = this.value;
+    function calcStrength(val) {
         let score = 0;
         if (val.length >= 8) score++;
         if (/[A-Z]/.test(val)) score++;
         if (/[0-9]/.test(val)) score++;
         if (/[^A-Za-z0-9]/.test(val)) score++;
+        return score;
+    }
 
+    pwdInput?.addEventListener('input', function() {
+        const val = this.value;
+        const score = val.length === 0 ? 0 : calcStrength(val);
         const levels = [
             { pct: '0%',   color: 'transparent', label: 'Şifre gücü' },
             { pct: '25%',  color: '#ff2d00',      label: 'Zayıf' },
             { pct: '50%',  color: '#ff6b00',      label: 'Orta' },
-            { pct: '75%',  color: '#ffb700',      label: 'İyi' },
-            { pct: '100%', color: '#00cc55',      label: 'Güçlü' },
+            { pct: '75%',  color: '#ffb700',       label: 'İyi' },
+            { pct: '100%', color: '#00cc55',       label: 'Güçlü' },
         ];
-        const lvl = val.length === 0 ? 0 : score;
-        pwdFill.style.width = levels[lvl].pct;
-        pwdFill.style.background = levels[lvl].color;
-        pwdLabel.textContent = levels[lvl].label;
-        pwdLabel.style.color = levels[lvl].color === 'transparent' ? '' : levels[lvl].color;
+        pwdFill.style.width      = levels[score].pct;
+        pwdFill.style.background = levels[score].color;
+        pwdLabel.textContent     = levels[score].label;
+        pwdLabel.style.color     = levels[score].color === 'transparent' ? '' : levels[score].color;
+
+        const errEl = document.getElementById('pwdErr');
+        if (val.length > 0 && val.length < 8) {
+            errEl.classList.add('show');
+            this.classList.add('input-error'); this.classList.remove('input-ok');
+        } else if (val.length >= 8) {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error'); this.classList.add('input-ok');
+        } else {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error', 'input-ok');
+        }
+
+        if (pwdConfirm.value.length > 0) pwdConfirm.dispatchEvent(new Event('input'));
     });
+
+    pwdConfirm?.addEventListener('input', function() {
+        const errEl = document.getElementById('confirmErr');
+        if (this.value.length === 0) {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error', 'input-ok');
+        } else if (this.value !== pwdInput.value) {
+            errEl.classList.add('show');
+            this.classList.add('input-error'); this.classList.remove('input-ok');
+        } else {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error'); this.classList.add('input-ok');
+        }
+    });
+
+    emailInput?.addEventListener('blur', function() {
+        const errEl = document.getElementById('emailErr');
+        const valid = /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(this.value);
+        if (this.value.length === 0) {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error', 'input-ok');
+        } else if (!valid) {
+            errEl.classList.add('show');
+            this.classList.add('input-error'); this.classList.remove('input-ok');
+        } else {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error'); this.classList.add('input-ok');
+        }
+    });
+
+    usernameInput?.addEventListener('blur', function() {
+        const errEl = document.getElementById('usernameErr');
+        if (this.value.length > 0 && this.value.length < 3) {
+            errEl.classList.add('show');
+            this.classList.add('input-error'); this.classList.remove('input-ok');
+        } else if (this.value.length >= 3) {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error'); this.classList.add('input-ok');
+        } else {
+            errEl.classList.remove('show');
+            this.classList.remove('input-error', 'input-ok');
+        }
+    });
+
+    document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+        let ok = true;
+
+        const emailVal = emailInput.value;
+        if (!/^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(emailVal)) {
+            document.getElementById('emailErr').classList.add('show');
+            emailInput.classList.add('input-error');
+            ok = false;
+        }
+
+        if (usernameInput.value.length < 3) {
+            document.getElementById('usernameErr').classList.add('show');
+            usernameInput.classList.add('input-error');
+            ok = false;
+        }
+
+        if (pwdInput.value.length < 8) {
+            document.getElementById('pwdErr').classList.add('show');
+            pwdInput.classList.add('input-error');
+            ok = false;
+        }
+
+        if (pwdConfirm.value !== pwdInput.value) {
+            document.getElementById('confirmErr').classList.add('show');
+            pwdConfirm.classList.add('input-error');
+            ok = false;
+        }
+
+        if (!ok) e.preventDefault();
+    });
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    document.getElementById('termsLink')?.addEventListener('click',   e => { e.preventDefault(); openModal('termsModal');   });
+    document.getElementById('privacyLink')?.addEventListener('click', e => { e.preventDefault(); openModal('privacyModal'); });
+    document.getElementById('termsClose')?.addEventListener('click',  () => closeModal('termsModal'));
+    document.getElementById('privacyClose')?.addEventListener('click',() => closeModal('privacyModal'));
+    document.getElementById('termsModal')?.addEventListener('click',  e => { if (e.target === e.currentTarget) closeModal('termsModal');   });
+    document.getElementById('privacyModal')?.addEventListener('click',e => { if (e.target === e.currentTarget) closeModal('privacyModal'); });
 </script>
 }

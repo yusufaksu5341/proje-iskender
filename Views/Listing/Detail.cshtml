@@ -1,8 +1,22 @@
 @model ProjeIskender.Models.IlanModel
+@using ProjeIskender.Models
 @{
     ViewData["Title"] = Model.Baslik + " — İskender";
     var minTeklif = (long)Model.MinTeklif;
+    bool isOwner    = ViewBag.IsOwner    == true;
+    bool isFavorited = ViewBag.IsFavorited == true;
+    var bidHistory  = ViewBag.BidHistory as List<BidHistoryItem>   ?? new List<BidHistoryItem>();
+    var comments    = ViewBag.Comments   as List<CommentDisplay>   ?? new List<CommentDisplay>();
+    var currentUser = ViewBag.CurrentUserId as string;
 }
+
+<div class="bid-success-overlay" id="bidSuccessOverlay">
+    <div class="bid-success-box">
+        <div class="bid-success-particles" id="bidSuccessParticles"></div>
+        <div class="bid-success-title">Tebrikler!</div>
+        <div class="bid-success-sub">Teklifiniz başarıyla oluşturuldu.</div>
+    </div>
+</div>
 
 <div class="ilan-detail-page">
     <div class="container-fluid">
@@ -10,26 +24,34 @@
         <div class="ilan-breadcrumb">
             <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
             <span class="sep">›</span>
-            <a href="#">@Model.Kategori</a>
+            <a href="/arama?kategori=@Uri.EscapeDataString(Model.Kategori)">@Model.Kategori</a>
             <span class="sep">›</span>
             <span>@Model.Baslik</span>
         </div>
 
         <div class="row g-4">
 
-            <!-- SOL: Galeri -->
             <div class="col-lg-7">
                 <div class="ilan-gallery">
-                    <div class="gallery-main" id="galleryMain"></div>
-                    <div class="gallery-thumbs">
-                        <div class="gallery-thumb active"></div>
-                        <div class="gallery-thumb"></div>
-                        <div class="gallery-thumb"></div>
-                    </div>
+                    @if (Model.MainImage != null)
+                    {
+                        <div class="gallery-main" id="galleryMain"
+                             style="background-image:url('/@Model.MainImage');background-size:cover;background-position:center;"></div>
+                        <div class="gallery-thumbs">
+                            <div class="gallery-thumb active"
+                                 style="background-image:url('/@Model.MainImage');background-size:cover;background-position:center;"></div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="gallery-main" id="galleryMain"></div>
+                        <div class="gallery-thumbs">
+                            <div class="gallery-thumb active"></div>
+                        </div>
+                    }
                 </div>
             </div>
 
-            <!-- SAG: Bilgi Paneli -->
             <div class="col-lg-5">
                 <div class="ilan-info-panel">
 
@@ -56,18 +78,18 @@
                     {
                         <div class="ilan-countdown-section">
                             <div class="ilan-countdown-label">Artırma Bitimine Kalan Süre</div>
-                            <div class="ilan-countdown-timers">
-                                <div class="ilan-countdown-block">
-                                    <span class="ilan-countdown-num" id="cdHour">--</span>
-                                    <div class="ilan-countdown-unit">Saat</div>
+                            <div class="ilan-countdown-timers" id="cdContainer">
+                                <div class="ilan-countdown-block" id="cdBlock1">
+                                    <span class="ilan-countdown-num" id="cdVal1">--</span>
+                                    <div class="ilan-countdown-unit" id="cdLbl1">--</div>
                                 </div>
-                                <div class="ilan-countdown-block">
-                                    <span class="ilan-countdown-num" id="cdMin">--</span>
-                                    <div class="ilan-countdown-unit">Dakika</div>
+                                <div class="ilan-countdown-block" id="cdBlock2">
+                                    <span class="ilan-countdown-num" id="cdVal2">--</span>
+                                    <div class="ilan-countdown-unit" id="cdLbl2">--</div>
                                 </div>
-                                <div class="ilan-countdown-block">
-                                    <span class="ilan-countdown-num" id="cdSec">--</span>
-                                    <div class="ilan-countdown-unit">Saniye</div>
+                                <div class="ilan-countdown-block" id="cdBlock3">
+                                    <span class="ilan-countdown-num" id="cdVal3">--</span>
+                                    <div class="ilan-countdown-unit" id="cdLbl3">--</div>
                                 </div>
                             </div>
                         </div>
@@ -99,6 +121,13 @@
                                 </div>
                                 <button type="button" class="flame-btn flame-btn-plus" aria-label="Artır">+</button>
                             </div>
+                            <div style="margin-top:.65rem;display:flex;align-items:center;gap:.5rem;">
+                                <span style="color:var(--text-muted);font-size:.88rem;">veya yazın:</span>
+                                <input type="number" id="bidManualInput" class="fire-input"
+                                       min="@minTeklif" step="1" placeholder="@minTeklif"
+                                       style="width:130px;padding:.35rem .6rem;font-size:.95rem;" />
+                                <span style="color:var(--text-muted);font-weight:600;">₺</span>
+                            </div>
                         </div>
                     }
                     else
@@ -113,23 +142,50 @@
                     }
 
                     <div class="ilan-actions">
-                        <button type="button" class="btn-bid-submit" id="bidSubmitBtn">
-                            @(Model.Durum == "Artırma" ? "Teklif Ver" : "Satın Al")
+                        @if (isOwner)
+                        {
+                            <button type="button" class="btn-bid-submit" disabled style="opacity:.5;cursor:not-allowed;">
+                                Kendi İlanınız
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn-bid-submit" id="bidSubmitBtn">
+                                @(Model.Durum == "Artırma" ? "Teklif Ver" : "Satın Al")
+                            </button>
+                        }
+
+                        <button type="button" class="btn-fav-fire @(isFavorited ? "favorited" : "")" id="favBtn"
+                                title="@(isFavorited ? "Favorilerden Çıkar" : "Favorilere Ekle")">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                 fill="@(isFavorited ? "var(--fire-orange)" : "none")"
+                                 stroke="@(isFavorited ? "var(--fire-orange)" : "var(--text-muted)")"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
                         </button>
-                        <button type="button" class="btn-wishlist-large">♡</button>
                     </div>
 
-                    <div class="ilan-seller-card">
-                        <div class="ilan-seller-avatar">
-                            @Model.SaticiAdi.Substring(0, 1).ToUpper()
+                    <div id="bidMessage" style="display:none;margin-top:.75rem;padding:.6rem 1rem;border-radius:8px;font-weight:600;"></div>
+
+                    @if (Model.Durum == "Artırma" && bidHistory.Count > 0)
+                    {
+                        <div class="bid-history-panel" id="bidHistoryPanel">
+                            <div class="bid-history-title">Teklifler</div>
+                            <div class="bid-history-list" id="bidHistoryList">
+                                @foreach (var b in bidHistory)
+                                {
+                                    <div class="bid-history-row">
+                                        <span class="bid-history-user">@@<strong>@b.UserName</strong></span>
+                                        <span class="bid-history-price">₺@b.Price.ToString("N0")</span>
+                                        <span class="bid-history-time">@((DateTime.Now - b.BidDate).TotalMinutes < 60
+                                            ? (int)(DateTime.Now - b.BidDate).TotalMinutes + " dk önce"
+                                            : (int)(DateTime.Now - b.BidDate).TotalHours + " saat önce")</span>
+                                    </div>
+                                }
+                            </div>
                         </div>
-                        <div>
-                            <div class="ilan-seller-name">@Model.SaticiAdi</div>
-                            <div class="ilan-seller-rating">★★★★★ <span style="color:var(--text-muted)">4.9</span></div>
-                            <div class="ilan-seller-meta">@Model.Sehir · Aktif satıcı</div>
-                        </div>
-                        <button class="ilan-seller-btn">Profil</button>
-                    </div>
+                    }
 
                 </div>
             </div>
@@ -139,6 +195,7 @@
             <div class="ilan-tabs">
                 <div class="ilan-tab active" data-tab="aciklama">Açıklama</div>
                 <div class="ilan-tab" data-tab="ozellikler">Özellikler</div>
+                <div class="ilan-tab" data-tab="yorumlar">Yorumlar (@comments.Count)</div>
             </div>
 
             <div class="ilan-tab-content active" id="tab-aciklama">
@@ -148,11 +205,55 @@
             <div class="ilan-tab-content" id="tab-ozellikler">
                 <table class="ilan-spec-table">
                     <tr><td>Kategori</td><td>@Model.Kategori</td></tr>
-                    <tr><td>Ürün Durumu</td><td>@Model.UrunDurumu</td></tr>
+                    <tr><td>Ürün Durumu</td><td>@(Model.UrunDurumu switch {
+                        "sifir" => "Sıfır",
+                        "az"    => "Az Kullanılmış",
+                        "iyi"   => "İyi",
+                        "orta"  => "Orta",
+                        "kotu"  => "Yıpranmış",
+                        _       => Model.UrunDurumu
+                    })</td></tr>
                     <tr><td>Şehir</td><td>@Model.Sehir</td></tr>
-                    <tr><td>İlan Türü</td><td>@Model.Durum</td></tr>
-                    <tr><td>Satıcı</td><td>@Model.SaticiAdi</td></tr>
+                    <tr><td>İlan Türü</td><td>@(Model.Durum == "Artırma" ? "Açık Artırma" : "Sabit Fiyat")</td></tr>
                 </table>
+            </div>
+
+            <div class="ilan-tab-content" id="tab-yorumlar">
+                <div class="yorum-section">
+                    @if (!string.IsNullOrEmpty(currentUser))
+                    {
+                        <div class="yorum-form" id="yorumForm">
+                            <textarea class="yorum-input" id="yorumInput" placeholder="Yorumunuzu yazın..." maxlength="500" rows="3"></textarea>
+                            <div class="yorum-form-footer">
+                                <span class="yorum-char-count" id="yorumCharCount">0 / 500</span>
+                                <button type="button" class="btn-fire yorum-submit-btn" id="yorumSubmitBtn">Yorum Yap</button>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="yorum-login-hint">
+                            Yorum yapabilmek için <a asp-controller="Account" asp-action="Login">giriş yapın</a>.
+                        </div>
+                    }
+
+                    <div class="yorum-list" id="yorumList">
+                        @if (comments.Count == 0)
+                        {
+                            <div class="yorum-empty" id="yorumEmpty">Henüz yorum yok. İlk yorumu siz yapın!</div>
+                        }
+                        @foreach (var c in comments)
+                        {
+                            <div class="yorum-item">
+                                <div class="yorum-header">
+                                    <span class="yorum-user">@@<strong>@c.UserName</strong></span>
+                                    <span class="yorum-date">@c.Date.ToString("dd.MM.yyyy HH:mm")</span>
+                                </div>
+                                <div class="yorum-content">@c.Content</div>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -162,19 +263,60 @@
 @section Scripts {
 <script>
     let totalSecs = @Model.KalanSaniye;
-    const cdHour = document.getElementById('cdHour');
-    const cdMin  = document.getElementById('cdMin');
-    const cdSec  = document.getElementById('cdSec');
-    if (cdHour) {
-        const tick = () => {
-            if (totalSecs <= 0) return;
-            totalSecs--;
-            cdHour.textContent = String(Math.floor(totalSecs / 3600)).padStart(2,'0');
-            cdMin.textContent  = String(Math.floor((totalSecs % 3600) / 60)).padStart(2,'0');
-            cdSec.textContent  = String(totalSecs % 60).padStart(2,'0');
-        };
-        tick();
-        setInterval(tick, 1000);
+    const cdVal1 = document.getElementById('cdVal1');
+    const cdVal2 = document.getElementById('cdVal2');
+    const cdVal3 = document.getElementById('cdVal3');
+    const cdLbl1 = document.getElementById('cdLbl1');
+    const cdLbl2 = document.getElementById('cdLbl2');
+    const cdLbl3 = document.getElementById('cdLbl3');
+    const cdBlock3 = document.getElementById('cdBlock3');
+
+    function renderCountdown(secs) {
+        if (!cdVal1) return;
+        if (secs <= 0) {
+            cdVal1.textContent = '00'; cdLbl1.textContent = 'Saat';
+            cdVal2.textContent = '00'; cdLbl2.textContent = 'Dakika';
+            cdVal3.textContent = '00'; cdLbl3.textContent = 'Saniye';
+            cdBlock3.style.display = '';
+            return;
+        }
+        const years  = Math.floor(secs / 31536000);
+        const months = Math.floor(secs / 2592000);
+        const weeks  = Math.floor(secs / 604800);
+        const days   = Math.floor(secs / 86400);
+        const hours  = Math.floor(secs / 3600);
+
+        if (years >= 1) {
+            const remMonths = Math.floor((secs % 31536000) / 2592000);
+            cdVal1.textContent = years;     cdLbl1.textContent = 'Yıl';
+            cdVal2.textContent = remMonths; cdLbl2.textContent = 'Ay';
+            cdBlock3.style.display = 'none';
+        } else if (months >= 1) {
+            const remDays = Math.floor((secs % 2592000) / 86400);
+            cdVal1.textContent = months;  cdLbl1.textContent = 'Ay';
+            cdVal2.textContent = remDays; cdLbl2.textContent = 'Gün';
+            cdBlock3.style.display = 'none';
+        } else if (weeks >= 1) {
+            const remDays = Math.floor((secs % 604800) / 86400);
+            cdVal1.textContent = weeks;   cdLbl1.textContent = 'Hafta';
+            cdVal2.textContent = remDays; cdLbl2.textContent = 'Gün';
+            cdBlock3.style.display = 'none';
+        } else if (days >= 1) {
+            const remHours = Math.floor((secs % 86400) / 3600);
+            cdVal1.textContent = days;     cdLbl1.textContent = 'Gün';
+            cdVal2.textContent = remHours; cdLbl2.textContent = 'Saat';
+            cdBlock3.style.display = 'none';
+        } else {
+            cdBlock3.style.display = '';
+            cdVal1.textContent = String(hours).padStart(2,'0');                            cdLbl1.textContent = 'Saat';
+            cdVal2.textContent = String(Math.floor((secs % 3600) / 60)).padStart(2,'0'); cdLbl2.textContent = 'Dakika';
+            cdVal3.textContent = String(secs % 60).padStart(2,'0');                        cdLbl3.textContent = 'Saniye';
+        }
+    }
+
+    if (cdVal1) {
+        renderCountdown(totalSecs);
+        setInterval(() => { if (totalSecs > 0) totalSecs--; renderCountdown(totalSecs); }, 1000);
     }
 
     document.querySelectorAll('.ilan-tab').forEach(tab => {
@@ -186,16 +328,218 @@
         });
     });
 
-    document.getElementById('bidSubmitBtn')?.addEventListener('click', () => {
-        const numEl = document.querySelector('.flame-bid-num');
-        if (!numEl) return;
-        const display = document.getElementById('currentBidDisplay');
-        if (display) {
-            display.textContent = numEl.textContent;
-            display.style.color = 'var(--fire-gold)';
-            display.style.textShadow = 'var(--glow-gold)';
-            setTimeout(() => { display.style.color = ''; display.style.textShadow = ''; }, 1200);
+    const bidBtn     = document.getElementById('bidSubmitBtn');
+    const bidMessage = document.getElementById('bidMessage');
+    const ilanId     = @Model.Id;
+    const ilanDurum  = '@Model.Durum';
+    const sabitFiyat = @Model.MevcutTeklif.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    function showMsg(text, color) {
+        if (!bidMessage) return;
+        bidMessage.textContent = text;
+        bidMessage.style.display = 'block';
+        bidMessage.style.background = color === 'success' ? 'rgba(76,175,80,.15)' : 'rgba(244,67,54,.15)';
+        bidMessage.style.color      = color === 'success' ? '#4caf50' : '#f44336';
+        bidMessage.style.border     = '1px solid ' + (color === 'success' ? '#4caf50' : '#f44336');
+    }
+
+    function showBidSuccess() {
+        const overlay = document.getElementById('bidSuccessOverlay');
+        const burst   = document.getElementById('bidSuccessParticles');
+        burst.innerHTML = '';
+        for (let i = 0; i < 18; i++) {
+            const p = document.createElement('div');
+            p.className = 'bsp';
+            const colors = ['#ff6b00','#ffc107','#ff2d00','#ffeb3b'];
+            p.style.cssText = '--bsp-x:' + (Math.random()*200-100).toFixed(0) + 'px;--bsp-y:' + (Math.random()*-180-40).toFixed(0) + 'px;--bsp-r:' + (Math.random()*360).toFixed(0) + 'deg;background:' + colors[i%4];
+            burst.appendChild(p);
         }
+        overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), 2800);
+    }
+
+    function updateBidWidget(newPrice) {
+        const wrap = document.querySelector('.flame-bid-wrap');
+        if (!wrap) return;
+        const newMin = Math.floor(newPrice) + 1;
+        wrap.dataset.min   = newMin;
+        wrap.dataset.value = newMin;
+        if (wrap._flameBid) {
+            wrap._flameBid.min = newMin;
+            wrap._flameBid.val = newMin;
+            wrap._flameBid._render();
+        }
+        const hint = document.querySelector('.flame-bid-step-hint');
+        if (hint) hint.textContent = 'Min. ₺' + newMin + ' · Her adım +₺50';
+        const mi = document.getElementById('bidManualInput');
+        if (mi) { mi.value = newMin; mi.min = newMin; }
+    }
+
+    (function() {
+        const wrapEl = document.querySelector('.flame-bid-wrap');
+        const mi     = document.getElementById('bidManualInput');
+        if (!wrapEl || !mi) return;
+        const waitWidget = setInterval(() => {
+            if (!wrapEl._flameBid) return;
+            clearInterval(waitWidget);
+            const wid = wrapEl._flameBid;
+            mi.value = wid.val;
+            let fromInput = false;
+            const numEl = wrapEl.querySelector('.flame-bid-num');
+            if (numEl) {
+                new MutationObserver(() => {
+                    if (!fromInput) mi.value = wid.val;
+                }).observe(numEl, { childList: true, characterData: true, subtree: true });
+            }
+            mi.addEventListener('input', () => {
+                const v = parseInt(mi.value);
+                if (!isNaN(v) && v >= wid.min && v <= wid.max) {
+                    fromInput = true;
+                    wid.val = v;
+                    wid._render();
+                    fromInput = false;
+                }
+            });
+        }, 50);
+    })();
+
+    bidBtn?.addEventListener('click', async () => {
+        let fiyat;
+        const wrap   = document.querySelector('.flame-bid-wrap');
+        const widget = wrap?._flameBid;
+        if (widget) {
+            fiyat = widget.getValue();
+        } else {
+            fiyat = sabitFiyat;
+        }
+
+        const origText = bidBtn.textContent;
+        bidBtn.disabled = true;
+        bidBtn.textContent = 'Gönderiliyor...';
+
+        try {
+            const res  = await fetch('/ilan/' + ilanId + '/teklif', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fiyat: fiyat })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showBidSuccess();
+                if (data.isPurchase) {
+                    bidBtn.textContent = 'Satın Alındı';
+                } else {
+                    bidBtn.textContent = 'Teklif Verildi';
+                    const display = document.getElementById('currentBidDisplay');
+                    if (display) {
+                        display.textContent = parseFloat(fiyat).toLocaleString('tr-TR');
+                        display.style.color = 'var(--fire-gold)';
+                        setTimeout(() => { display.style.color = ''; }, 1200);
+                    }
+                    const countEl = document.querySelector('.ilan-current-bid-meta');
+                    if (countEl && data.bidCount) countEl.textContent = '· ' + data.bidCount + ' teklif verildi';
+                    updateBidWidget(fiyat);
+                }
+            } else {
+                showMsg(data.message || 'Hata oluştu.', 'error');
+                bidBtn.disabled = false;
+                bidBtn.textContent = origText;
+            }
+        } catch (e) {
+            showMsg('Bağlantı hatası.', 'error');
+            bidBtn.disabled = false;
+            bidBtn.textContent = origText;
+        }
+    });
+
+    if (document.querySelector('.flame-bid-wrap')) {
+        setInterval(async () => {
+            try {
+                const res  = await fetch('/ilan/' + ilanId + '/fiyat');
+                const data = await res.json();
+                const display = document.getElementById('currentBidDisplay');
+                if (display && data.price) {
+                    const newPrice  = parseFloat(data.price);
+                    const formatted = newPrice.toLocaleString('tr-TR');
+                    if (display.textContent !== formatted) {
+                        display.textContent = formatted;
+                        display.style.color = 'var(--fire-gold)';
+                        setTimeout(() => { display.style.color = ''; }, 1200);
+                        updateBidWidget(newPrice);
+                    }
+                }
+                const countEl = document.querySelector('.ilan-current-bid-meta');
+                if (countEl && data.bidCount != null) countEl.textContent = '· ' + data.bidCount + ' teklif verildi';
+            } catch {}
+        }, 10000);
+    }
+
+    const favBtn = document.getElementById('favBtn');
+    let   isFav  = @(isFavorited ? "true" : "false");
+
+    favBtn?.addEventListener('click', async () => {
+        try {
+            const res  = await fetch('/ilan/' + ilanId + '/favori', { method: 'POST' });
+            const data = await res.json();
+            if (!data.success) return;
+
+            isFav = data.isFavorited;
+            const svg = favBtn.querySelector('svg');
+            if (svg) {
+                svg.setAttribute('fill',   isFav ? 'var(--fire-orange)' : 'none');
+                svg.setAttribute('stroke', isFav ? 'var(--fire-orange)' : 'var(--text-muted)');
+            }
+            favBtn.title = isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle';
+            favBtn.classList.toggle('favorited', isFav);
+            favBtn.classList.remove('fav-anim');
+            void favBtn.offsetWidth;
+            favBtn.classList.add('fav-anim');
+        } catch {}
+    });
+
+    const yorumInput     = document.getElementById('yorumInput');
+    const yorumSubmitBtn = document.getElementById('yorumSubmitBtn');
+    const yorumCharCount = document.getElementById('yorumCharCount');
+    const yorumList      = document.getElementById('yorumList');
+
+    yorumInput?.addEventListener('input', () => {
+        const len = yorumInput.value.length;
+        yorumCharCount.textContent = len + ' / 500';
+    });
+
+    yorumSubmitBtn?.addEventListener('click', async () => {
+        const icerik = yorumInput.value.trim();
+        if (!icerik) return;
+
+        yorumSubmitBtn.disabled = true;
+        try {
+            const res  = await fetch('/ilan/' + ilanId + '/yorum', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ icerik })
+            });
+            const data = await res.json();
+            if (data.success) {
+                const empty = document.getElementById('yorumEmpty');
+                if (empty) empty.remove();
+
+                const item = document.createElement('div');
+                item.className = 'yorum-item';
+                item.innerHTML =
+                    '<div class="yorum-header">' +
+                        '<span class="yorum-user">@@<strong>' + data.username + '</strong></span>' +
+                        '<span class="yorum-date">Şimdi</span>' +
+                    '</div>' +
+                    '<div class="yorum-content">' + data.icerik.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>';
+                yorumList.insertBefore(item, yorumList.firstChild);
+                yorumInput.value = '';
+                yorumCharCount.textContent = '0 / 500';
+            } else {
+                alert(data.message);
+            }
+        } catch {}
+        yorumSubmitBtn.disabled = false;
     });
 </script>
 }

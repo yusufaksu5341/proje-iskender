@@ -3,6 +3,7 @@
     ViewData["Title"] = "İskender";
 }
 
+
 <section class="hero-section">
     <div class="ember-field">
         <div class="ember"></div><div class="ember"></div><div class="ember"></div>
@@ -25,10 +26,6 @@
                         <span class="hero-stat-lbl">Aktif İlan</span>
                     </div>
                     <div class="hero-stat">
-                        <span class="hero-stat-num">12K+</span>
-                        <span class="hero-stat-lbl">Satıcı</span>
-                    </div>
-                    <div class="hero-stat">
                         <span class="hero-stat-num">@Model.Count(i => i.Durum == "Artırma")</span>
                         <span class="hero-stat-lbl">Açık Artırma</span>
                     </div>
@@ -43,7 +40,11 @@
                     @if (Model.Count > 1)
                     {
                         <div class="showcase-card card-left">
-                            <div class="sc-img"></div>
+                            @if (Model[1].MainImage != null)
+                            {
+                                <img src="/@Model[1].MainImage" class="sc-img" style="object-fit:cover;width:100%;height:100%;" alt="@Model[1].Baslik">
+                            }
+                            else { <div class="sc-img"></div> }
                             <div class="sc-title">@Model[1].Baslik</div>
                             <div class="sc-price">₺@Model[1].MevcutTeklif.ToString("N0")</div>
                             <div class="sc-bid">@Model[1].TeklifSayisi teklif</div>
@@ -53,7 +54,11 @@
                     {
                         <div class="showcase-card card-main">
                             <span class="sc-badge">Çok Teklif</span>
-                            <div class="sc-img"></div>
+                            @if (Model[0].MainImage != null)
+                            {
+                                <img src="/@Model[0].MainImage" class="sc-img" style="object-fit:cover;width:100%;height:100%;" alt="@Model[0].Baslik">
+                            }
+                            else { <div class="sc-img"></div> }
                             <div class="sc-title">@Model[0].Baslik</div>
                             <div class="sc-price">₺@Model[0].MevcutTeklif.ToString("N0")</div>
                             <div class="sc-bid">@Model[0].TeklifSayisi teklif</div>
@@ -62,7 +67,11 @@
                     @if (Model.Count > 2)
                     {
                         <div class="showcase-card card-right">
-                            <div class="sc-img"></div>
+                            @if (Model[2].MainImage != null)
+                            {
+                                <img src="/@Model[2].MainImage" class="sc-img" style="object-fit:cover;width:100%;height:100%;" alt="@Model[2].Baslik">
+                            }
+                            else { <div class="sc-img"></div> }
                             <div class="sc-title">@Model[2].Baslik</div>
                             <div class="sc-price">₺@Model[2].MevcutTeklif.ToString("N0")</div>
                             <div class="sc-bid">@Model[2].TeklifSayisi teklif</div>
@@ -98,11 +107,14 @@
                         <a href="/ilan/@ilan.Id" style="text-decoration:none; display:block;">
                             <div class="listing-card">
                                 <div class="card-img-wrap">
+                                    @if (ilan.MainImage != null)
+                                    {
+                                        <img src="/@ilan.MainImage" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="@ilan.Baslik">
+                                    }
                                     <span class="listing-badge badge-@ilan.Badge">
                                         @(ilan.Badge == "hot" ? "Popüler" :
                                           ilan.Badge == "new" ? "Yeni"    : "Bitiyor")
                                     </span>
-                                    <button class="wishlist-btn" onclick="event.preventDefault()">♡</button>
                                 </div>
                                 <div class="card-body">
                                     <div class="listing-title">@ilan.Baslik</div>
@@ -136,6 +148,7 @@
                     </div>
                 }
             </div>
+
         }
     </div>
 </section>

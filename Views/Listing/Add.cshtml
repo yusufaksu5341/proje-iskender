@@ -15,7 +15,8 @@
             <div class="ilan-add-sub">Ürününü binlerce alıcıya ulaştır.</div>
         </div>
 
-        <form class="ilan-add-form" method="post" action="#" enctype="multipart/form-data">
+        <form class="ilan-add-form" method="post" asp-controller="Listing" asp-action="Add" enctype="multipart/form-data">
+            <input type="hidden" name="ilanTuru" id="ilanTuruHidden" value="sabit" />
 
             <!-- Bölüm 1: Temel Bilgiler -->
             <div class="ilan-section">
@@ -51,14 +52,10 @@
                         <label class="fire-label" for="sehir">Şehir</label>
                         <select class="fire-select" id="sehir" name="sehir" required>
                             <option value="">Seçiniz</option>
-                            <option>İstanbul</option>
-                            <option>Ankara</option>
-                            <option>İzmir</option>
-                            <option>Bursa</option>
-                            <option>Antalya</option>
-                            <option>Adana</option>
-                            <option>Konya</option>
-                            <option>Diğer</option>
+                            @foreach (var il in ProjeIskender.Helpers.Iller.Tumu)
+                            {
+                                <option>@il</option>
+                            }
                         </select>
                     </div>
                     <div class="col-12">
@@ -145,13 +142,8 @@
                 <div class="artirma-extra mt-3" id="artirmaExtra" style="display:none;">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="fire-label" for="artirmaSuresi">Artırma Süresi</label>
-                            <select class="fire-select" id="artirmaSuresi" name="artirmaSuresi">
-                                <option>1 Gün</option>
-                                <option>3 Gün</option>
-                                <option selected>7 Gün</option>
-                                <option>14 Gün</option>
-                            </select>
+                            <label class="fire-label" for="bitisZamani">Artırma Bitiş Tarihi &amp; Saati</label>
+                            <input class="fire-input" type="datetime-local" id="bitisZamani" name="bitisZamani" />
                         </div>
                         <div class="col-md-6">
                             <label class="fire-label" for="artirmaAdimi">Min. Artış Adımı (₺)</label>
@@ -186,6 +178,15 @@
     const typeCards = document.querySelectorAll('.listing-type-card');
     const artirmaExtra = document.getElementById('artirmaExtra');
     const flameBidLabel = document.getElementById('flameBidLabel');
+    const ilanTuruHidden = document.getElementById('ilanTuruHidden');
+    const bitisZamaniInput = document.getElementById('bitisZamani');
+
+    // Set default auction end date to now + 7 days
+    const defaultEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    defaultEnd.setSeconds(0, 0);
+    bitisZamaniInput.value = defaultEnd.toISOString().slice(0, 16);
+    bitisZamaniInput.min   = new Date(Date.now() + 60000).toISOString().slice(0, 16);
+
     typeCards.forEach(card => {
         card.addEventListener('click', () => {
             typeCards.forEach(c => c.classList.remove('active'));
@@ -193,6 +194,7 @@
             const isArtirma = card.dataset.type === 'artirma';
             artirmaExtra.style.display = isArtirma ? '' : 'none';
             flameBidLabel.textContent = isArtirma ? 'Başlangıç Fiyatı' : 'Satış Fiyatı';
+            ilanTuruHidden.value = card.dataset.type;
         });
     });
 

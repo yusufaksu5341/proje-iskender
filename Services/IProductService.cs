@@ -38,4 +38,14 @@ public interface IProductService
 
     public IEnumerable<Comment> GetComment(ulong productId);
     public void AddComment(ulong productId, ulong sender, string comment);
+
+    public IEnumerable<ProductData> GetAllVisibleProducts();
+    public ulong? GetLatestBidder(ulong productId);
+    public IEnumerable<ProductPrice> GetUserBids(ulong userId);
+    public void UpdateProductInfo(ulong productId, string name, System.Text.Json.JsonElement? details);
+    public IEnumerable<ProductData> GetFollowedProducts(ulong userId);
+    public IEnumerable<ProductData> GetPurchases(ulong userId);
+    public bool MakePurchase(ulong userId, ulong productId);
+    public IEnumerable<BidHistoryItem> GetBidHistory(ulong productId, int limit = 20);
+    public IEnumerable<CommentDisplay> GetComments(ulong productId);
 }

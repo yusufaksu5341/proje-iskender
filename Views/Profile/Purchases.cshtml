@@ -1,0 +1,57 @@
+@model List<ProjeIskender.Models.IlanModel>
+@{
+    ViewData["Title"] = "Alınanlarım — İskender";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 style="color:var(--fire-orange);font-weight:700;">Alınanlarım</h2>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-text">Henüz hiç satın alımınız yok.</div>
+            <a href="/arama" class="btn-fire mt-3">İlanlara Gözat</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var ilan in Model)
+            {
+                <div class="col-12 col-md-6 col-xl-4">
+                    <a href="/ilan/@ilan.Id" style="text-decoration:none;display:block;">
+                        <div class="listing-card" style="border-color: rgba(76,175,80,.35);">
+                            <div class="card-img-wrap">
+                                @if (ilan.MainImage != null)
+                                {
+                                    <img src="/@ilan.MainImage" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="@ilan.Baslik">
+                                }
+                                <span class="listing-badge" style="background:#4caf50;color:#fff;">
+                                    @(ilan.Durum == "Artırma" ? "Kazanıldı" : "Satın Alındı")
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div class="listing-title">@ilan.Baslik</div>
+                                <div class="listing-location">
+                                    <span>@ilan.Sehir</span>
+                                    <span>@ilan.Kategori</span>
+                                </div>
+                                <div class="bid-section">
+                                    <div>
+                                        <div class="bid-label">Ödenen Fiyat</div>
+                                        <div class="bid-amount" style="color:#4caf50;">₺@ilan.MevcutTeklif.ToString("N0")</div>
+                                    </div>
+                                    <div style="font-size:.75rem;color:var(--text-muted);">
+                                        @(ilan.Durum == "Artırma" ? "Açık Artırma" : "Sabit Fiyat")
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    }
+</div>

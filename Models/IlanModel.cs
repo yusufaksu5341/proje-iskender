@@ -16,4 +16,5 @@ public class IlanModel
     public int    KalanSaniye  { get; set; }
     public string Badge        { get; set; } = "new"; // hot | new | end
     public string SaticiAdi    { get; set; } = "";
+    public string? MainImage   { get; set; } = null;
 }

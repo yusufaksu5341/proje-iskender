@@ -11,18 +11,18 @@ namespace ProjeIskender.Controllers.Api;
 
 [ApiController]
 [Route("api/account")]
-public class Account : ControllerBase
+public class AccountApi : ControllerBase
 {
-    ILogger<Account> logger;
+    ILogger<AccountApi> logger;
     IUserService userService;
-    
-    public Account(ILogger<Account> logger, IUserService userService)
+
+    public AccountApi(ILogger<AccountApi> logger, IUserService userService)
     {
         this.logger = logger;
         this.userService = userService;
     }
 
-    [HttpGet("login")]
+    [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest request)
     {
         UserData user;

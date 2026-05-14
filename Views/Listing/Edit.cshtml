@@ -1,0 +1,101 @@
+@model ProjeIskender.Models.IlanModel
+@{
+    ViewData["Title"] = "İlanı Düzenle — İskender";
+}
+
+<div class="ilan-add-page">
+    <div class="container-fluid">
+        <div class="ilan-add-header">
+            <div class="ilan-breadcrumb">
+                <a asp-controller="Home" asp-action="Index">Ana Sayfa</a>
+                <span class="sep">›</span>
+                <a href="/hesap/ilanlarim">İlanlarım</a>
+                <span class="sep">›</span>
+                <span>Düzenle</span>
+            </div>
+            <div class="ilan-add-title">İlanı Düzenle</div>
+        </div>
+
+        <form class="ilan-add-form" method="post" action="/ilan/@Model.Id/duzenle" enctype="multipart/form-data">
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">1</div>
+                    <div class="ilan-section-title">Temel Bilgiler</div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="fire-label">İlan Başlığı</label>
+                        <input class="fire-input" type="text" name="baslik" value="@Model.Baslik" maxlength="100" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fire-label">Kategori</label>
+                        <select class="fire-select" name="kategori" required>
+                            <option value="">Seçiniz</option>
+                            @foreach (var k in new[]{"Oyun & Konsol","Telefon & Tablet","Bilgisayar","Fotoğraf","Müzik Aletleri","Giyim","Ev & Yaşam","Araç & Aksesuar","Saat & Mücevher","Kitap & Koleksiyon","Diğer"})
+                            {
+                                <option value="@k" selected="@(Model.Kategori == k ? (object)"selected" : null)">@k</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="fire-label">Şehir</label>
+                        <select class="fire-select" name="sehir" required>
+                            <option value="">Seçiniz</option>
+                            @foreach (var il in ProjeIskender.Helpers.Iller.Tumu)
+                            {
+                                <option value="@il" selected="@(Model.Sehir == il ? (object)"selected" : null)">@il</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="fire-label">Ürün Durumu</label>
+                        <div class="condition-group">
+                            @foreach (var (val, lbl) in new[]{("sifir","Sıfır"),("az","Az Kullanılmış"),("iyi","İyi"),("orta","Orta"),("kotu","Yıpranmış")})
+                            {
+                                <label class="condition-pill @(Model.UrunDurumu == lbl ? "active" : "")">
+                                    <input type="radio" name="durum" value="@val" hidden checked="@(Model.UrunDurumu == lbl ? (object)"checked" : null)"> @lbl
+                                </label>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">2</div>
+                    <div class="ilan-section-title">Kapak Görseli (değiştirmek için seç)</div>
+                </div>
+                @if (Model.MainImage != null)
+                {
+                    <img src="/@Model.MainImage" style="max-height:180px;border-radius:8px;margin-bottom:1rem;" alt="Mevcut görsel">
+                }
+                <input class="fire-input" type="file" name="yeniGorsel" accept="image/*" />
+            </div>
+
+            <div class="ilan-section">
+                <div class="ilan-section-header">
+                    <div class="ilan-section-icon">3</div>
+                    <div class="ilan-section-title">Açıklama</div>
+                </div>
+                <textarea class="fire-textarea" name="aciklama" rows="6" style="min-height:140px">@Model.Aciklama</textarea>
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end">
+                <a href="/ilan/@Model.Id" class="btn-fire-outline">Vazgeç</a>
+                <button type="submit" class="btn-fire px-5">Kaydet</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.querySelectorAll('.condition-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            document.querySelectorAll('.condition-pill').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+        });
+    });
+</script>
+}

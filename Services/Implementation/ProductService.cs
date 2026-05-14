@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using ProjeIskender.Context;
 using ProjeIskender.Controllers.Api;
@@ -247,26 +246,18 @@ public class ProductService : IProductService
 
     public bool MakeBid(ulong userId, ulong productId, float price)
     {
-        var productData = _context.ProductData;
-        var productPrices = _context.ProductPrice;
+        long pid = (long)productId;
+        float currentPrice = _context.Database
+            .SqlQuery<float>($"SELECT current_price AS \"Value\" FROM product_tb WHERE product_id = {pid}")
+            .FirstOrDefault();
 
-        var prod = productData.First(x => x.ProductId == productId);
-
-        if (price < prod.CurrentPrice)
-        {
+        if (price <= currentPrice)
             return false;
-        }
 
-        prod.CurrentPrice = price;
-        productPrices.Add(new ProductPrice()
-        {
-            ProductId = productId,
-            UserId = userId,
-            Price = price,
-            BidDate = DateTime.Now
-        });
-        
-        _context.SaveChanges();
+        _context.Database.ExecuteSqlInterpolated(
+            $"UPDATE product_tb SET current_price = {price} WHERE product_id = {pid}");
+        _context.Database.ExecuteSqlInterpolated(
+            $"INSERT INTO product_price_tb (bid_date, user_id, product_id, price) VALUES ({DateTime.Now}, {(long)userId}, {pid}, {price})");
         return true;
     }
 
@@ -302,18 +293,148 @@ public class ProductService : IProductService
 
     public void AddComment(ulong productId, ulong sender, string comment)
     {
-        var commentData = _context.Comments;
-        commentData.Add(new Comment()
-        {
-            UserId = sender,
-            ProductId = productId,
-            Content = comment,
-            Date = DateTime.Now
-        });
+        _context.Database.ExecuteSqlInterpolated(
+            $"INSERT INTO comment_tb (owner_id, product_id, creation_date, comment_context) VALUES ({(long)sender}, {(long)productId}, {DateTime.Now}, {comment})");
+    }
 
-        if (_context.SaveChanges() != 1)
+    public IEnumerable<CommentDisplay> GetComments(ulong productId)
+    {
+        var comments = _context.Comments
+            .Where(x => x.ProductId == productId)
+            .OrderByDescending(x => x.Date)
+            .ToList();
+
+        var userIds = comments.Select(c => c.UserId).Distinct().ToList();
+        var users = _context.UserData
+            .Where(u => userIds.Contains(u.UserId))
+            .ToDictionary(u => u.UserId, u => u.UserName);
+
+        return comments.Select(c => new CommentDisplay
         {
-            throw new InternalErrorException();
+            UserName = users.TryGetValue(c.UserId, out var n) ? n : "?",
+            Content  = c.Content,
+            Date     = c.Date,
+        });
+    }
+
+    public IEnumerable<ProductData> GetAllVisibleProducts()
+    {
+        var now = DateTime.Now;
+        return _context.ProductData
+            .Where(x => x.Visible && x.ExpirationDate > now)
+            .OrderByDescending(x => x.CreationDate)
+            .Take(200)
+            .ToList();
+    }
+
+    public ulong? GetLatestBidder(ulong productId)
+    {
+        var latest = _context.ProductPrice
+            .Where(x => x.ProductId == productId)
+            .OrderByDescending(x => x.BidDate)
+            .FirstOrDefault();
+        return latest?.UserId;
+    }
+
+    public IEnumerable<ProductPrice> GetUserBids(ulong userId)
+    {
+        return _context.ProductPrice
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.BidDate)
+            .ToList();
+    }
+
+    public void UpdateProductInfo(ulong productId, string name, System.Text.Json.JsonElement? details)
+    {
+        var product = _context.ProductData.Find(productId);
+        if (product == null) throw new Exception("Product not found");
+        product.Name = name;
+        product.Details = details;
+        _context.ProductData.Update(product);
+        _context.SaveChanges();
+    }
+
+    public IEnumerable<ProductData> GetFollowedProducts(ulong userId)
+    {
+        var followedIds = _context.UserFollow
+            .Where(x => x.UserId == userId)
+            .Select(x => x.ProductId)
+            .ToList();
+        return _context.ProductData
+            .Where(x => followedIds.Contains(x.ProductId) && x.Visible)
+            .OrderByDescending(x => x.CreationDate)
+            .ToList();
+    }
+
+    public bool MakePurchase(ulong userId, ulong productId)
+    {
+        var product = _context.ProductData.Find(productId);
+        if (product == null || !product.Visible || !product.SinglePrice)
+            return false;
+
+        _context.Database.ExecuteSqlInterpolated(
+            $"INSERT INTO product_price_tb (bid_date, user_id, product_id, price) VALUES ({DateTime.Now}, {(long)userId}, {(long)productId}, {product.CurrentPrice})");
+
+        product.Visible = false;
+        _context.ProductData.Update(product);
+        _context.SaveChanges();
+        return true;
+    }
+
+    public IEnumerable<BidHistoryItem> GetBidHistory(ulong productId, int limit = 20)
+    {
+        var bids = _context.ProductPrice
+            .Where(x => x.ProductId == productId)
+            .OrderByDescending(x => x.BidDate)
+            .Take(limit)
+            .ToList();
+
+        var userIds = bids.Select(b => b.UserId).Distinct().ToList();
+        var users = _context.UserData
+            .Where(u => userIds.Contains(u.UserId))
+            .ToDictionary(u => u.UserId, u => u.UserName);
+
+        return bids.Select(b => new BidHistoryItem
+        {
+            UserId   = b.UserId,
+            UserName = users.TryGetValue(b.UserId, out var n) ? n : "?",
+            Price    = b.Price,
+            BidDate  = b.BidDate,
+        });
+    }
+
+    public IEnumerable<ProductData> GetPurchases(ulong userId)
+    {
+        var now = DateTime.Now;
+
+        var boughtProductIds = _context.ProductPrice
+            .Where(x => x.UserId == userId)
+            .Select(x => x.ProductId)
+            .Distinct()
+            .ToList();
+
+        var fixedPurchases = _context.ProductData
+            .Where(x => boughtProductIds.Contains(x.ProductId) && x.SinglePrice && !x.Visible)
+            .ToList();
+
+        var expiredAuctions = _context.ProductData
+            .Where(x => boughtProductIds.Contains(x.ProductId) && !x.SinglePrice && x.ExpirationDate < now)
+            .ToList();
+
+        var auctionWins = new List<ProductData>();
+        foreach (var auction in expiredAuctions)
+        {
+            var topBidder = _context.ProductPrice
+                .Where(x => x.ProductId == auction.ProductId)
+                .OrderByDescending(x => x.Price)
+                .Select(x => x.UserId)
+                .FirstOrDefault();
+            if (topBidder == userId)
+                auctionWins.Add(auction);
         }
+
+        return fixedPurchases.Concat(auctionWins)
+            .OrderByDescending(x => x.ExpirationDate)
+            .ToList();
     }
 }

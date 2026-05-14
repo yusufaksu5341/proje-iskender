@@ -152,10 +152,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Geri sayım zamanlayıcıları */
     function formatTime(secs) {
-        const h = Math.floor(secs / 3600);
-        const m = Math.floor((secs % 3600) / 60);
-        const s = secs % 60;
-        return `${h}s ${String(m).padStart(2, '0')}d ${String(s).padStart(2, '0')}sn`;
+        if (secs <= 0) return 'Sona erdi';
+        const years  = Math.floor(secs / 31536000);
+        const months = Math.floor(secs / 2592000);
+        const weeks  = Math.floor(secs / 604800);
+        const days   = Math.floor(secs / 86400);
+        const hours  = Math.floor(secs / 3600);
+        const mins   = Math.floor((secs % 3600) / 60);
+        const s      = secs % 60;
+        if (years  >= 1) return years  + ' yıl '   + Math.floor((secs % 31536000) / 2592000) + ' ay';
+        if (months >= 1) return months + ' ay '    + Math.floor((secs % 2592000)  / 86400)   + ' gün';
+        if (weeks  >= 1) return weeks  + ' hafta ' + Math.floor((secs % 604800)   / 86400)   + ' gün';
+        if (days   >= 1) return days   + ' gün '   + (hours % 24) + ' sa';
+        return String(hours).padStart(2,'0') + ':' + String(mins).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     }
 
     document.querySelectorAll('.countdown-timer[data-ends]').forEach(el => {
@@ -180,17 +189,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     });
 
-    /* Favori butonları */
-    document.querySelectorAll('.wishlist-btn').forEach(btn => {
-        btn.addEventListener('click', e => {
+
+
+    /* Kullanıcı dropdown menüsü — tıklayınca aç/kapat */
+    const userPill     = document.querySelector('.nav-user-pill');
+    const userDropdown = document.querySelector('.nav-user-dropdown');
+    if (userPill && userDropdown) {
+        userPill.addEventListener('click', e => {
+            // Logout linkine tıklanırsa navigasyona izin ver
+            if (e.target.closest('.nav-user-logout, .nav-dropdown-logout, .nav-user-dropdown a')) return;
+            userDropdown.classList.toggle('open');
             e.stopPropagation();
-            const active = btn.dataset.active === '1';
-            btn.dataset.active = active ? '0' : '1';
-            btn.textContent = active ? '♡' : '♥';
-            btn.style.color = active ? '' : 'var(--fire-red)';
-            btn.style.borderColor = active ? '' : 'var(--fire-red)';
         });
-    });
+        // Dropdown içindeki linklere tıklanınca kapat
+        userDropdown.addEventListener('click', () => {
+            userDropdown.classList.remove('open');
+        });
+        // Dışarıya tıklanınca kapat
+        document.addEventListener('click', e => {
+            if (!userPill.contains(e.target)) {
+                userDropdown.classList.remove('open');
+            }
+        });
+    }
 
     /* Hamburger menü */
     const menuToggle = document.getElementById('menuToggle');

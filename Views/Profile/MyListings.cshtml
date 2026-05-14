@@ -1,0 +1,58 @@
+@model List<ProjeIskender.Models.IlanModel>
+@{
+    ViewData["Title"] = "İlanlarım — İskender";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h2 style="color:var(--fire-orange);font-weight:700;">İlanlarım</h2>
+        <a asp-controller="Listing" asp-action="Add" class="btn-fire">+ Yeni İlan</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-text">Henüz hiç ilanınız yok.</div>
+            <a asp-controller="Listing" asp-action="Add" class="btn-fire mt-3">İlk İlanı Ver</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var ilan in Model)
+            {
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="listing-card">
+                        <div class="card-img-wrap">
+                            @if (ilan.MainImage != null)
+                            {
+                                <img src="/@ilan.MainImage" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="@ilan.Baslik">
+                            }
+                            <span class="listing-badge badge-@ilan.Badge">
+                                @(ilan.Badge == "hot" ? "Popüler" : ilan.Badge == "new" ? "Yeni" : "Bitiyor")
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div class="listing-title">@ilan.Baslik</div>
+                            <div class="listing-location">
+                                <span>@ilan.Sehir</span>
+                                <span>@ilan.Kategori</span>
+                            </div>
+                            <div class="bid-section">
+                                <div>
+                                    <div class="bid-label">@(ilan.Durum == "Artırma" ? "Mevcut Teklif" : "Sabit Fiyat")</div>
+                                    <div class="bid-amount">₺@ilan.MevcutTeklif.ToString("N0")</div>
+                                </div>
+                                <div class="bid-count">@ilan.TeklifSayisi teklif</div>
+                            </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="/ilan/@ilan.Id" class="btn-bid" style="flex:1;text-align:center;">Görüntüle</a>
+                                <a href="/ilan/@ilan.Id/duzenle" class="btn-fire-outline" style="flex:1;text-align:center;padding:.4rem;">Düzenle</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
